@@ -28,6 +28,7 @@
   --rojo-bg:#fbe7e6;
   --blanco:#ffffff;
   --superficie:#ffffff;
+  --texto-enfasis:#0b2540;
   --radio:10px;
   --sombra:0 1px 3px rgba(15,40,70,.08), 0 1px 2px rgba(15,40,70,.06);
   --sombra-lg:0 8px 24px rgba(15,40,70,.12);
@@ -54,6 +55,7 @@ html[data-theme="dark"]{
   --rojo-bg:#3a1413;
   --blanco:#11161d;
   --superficie:#1a212b;
+  --texto-enfasis:#9bc8f0;
   --sombra:0 1px 3px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
   --sombra-lg:0 8px 28px rgba(0,0,0,.5);
 }
@@ -154,7 +156,7 @@ input,select,textarea{font-family:inherit;}
   margin:0 auto 16px;
 }
 .login-card h1{
-  text-align:center;font-size:18px;margin:0 0 2px;color:var(--azul-900);
+  text-align:center;font-size:18px;margin:0 0 2px;color:var(--texto-enfasis);
   font-weight:700;
 }
 .login-card p.sub{
@@ -193,7 +195,7 @@ input,select,textarea{font-family:inherit;}
   display:flex;align-items:flex-end;justify-content:space-between;
   flex-wrap:wrap;gap:10px;margin-bottom:18px;
 }
-.page-head h2{margin:0;font-size:20px;color:var(--azul-900);font-weight:700;}
+.page-head h2{margin:0;font-size:20px;color:var(--texto-enfasis);font-weight:700;}
 .page-head p{margin:3px 0 0;color:var(--gris-600);font-size:13.5px;}
 .date-badge{
   background:var(--azul-100);color:var(--azul-800);
@@ -225,7 +227,7 @@ input,select,textarea{font-family:inherit;}
   background:var(--superficie);border-radius:var(--radio);box-shadow:var(--sombra);
   padding:14px 16px;
 }
-.stat .num{font-size:24px;font-weight:800;color:var(--azul-900);line-height:1.1;}
+.stat .num{font-size:24px;font-weight:800;color:var(--texto-enfasis);line-height:1.1;}
 .stat .lbl{font-size:11.5px;color:var(--gris-600);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;}
 
 .person-row{
@@ -254,7 +256,7 @@ input,select,textarea{font-family:inherit;}
 .badge.falta-j{background:var(--amarillo-bg);color:var(--amarillo);}
 .badge.falta-i{background:var(--rojo-bg);color:var(--rojo);}
 .score-pill{
-  font-size:18px;font-weight:800;color:var(--azul-800);
+  font-size:18px;font-weight:800;color:var(--texto-enfasis);
 }
 .eval-btn{
   background:var(--azul-700);color:#fff;border:none;border-radius:8px;
@@ -359,8 +361,8 @@ input,select,textarea{font-family:inherit;}
   display:flex;align-items:center;justify-content:space-between;
   background:var(--azul-100);border-radius:10px;padding:13px 16px;margin:16px 0;
 }
-.score-preview .lbl{font-size:12.5px;font-weight:700;color:var(--azul-800);}
-.score-preview .val{font-size:24px;font-weight:800;color:var(--azul-900);}
+.score-preview .lbl{font-size:12.5px;font-weight:700;color:var(--texto-enfasis);}
+.score-preview .val{font-size:24px;font-weight:800;color:var(--texto-enfasis);}
 
 .modal-foot{
   padding:14px 20px 20px;position:sticky;bottom:0;background:var(--superficie);
@@ -378,7 +380,7 @@ input,select,textarea{font-family:inherit;}
   padding:18px 20px;margin-bottom:14px;
 }
 .suc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.suc-head .name{font-weight:800;font-size:16px;color:var(--azul-900);}
+.suc-head .name{font-weight:800;font-size:16px;color:var(--texto-enfasis);}
 .suc-head .pct{font-size:22px;font-weight:800;}
 .pct.high{color:var(--verde);}
 .pct.mid{color:var(--amarillo);}
@@ -1276,24 +1278,34 @@ function dateInRange(fecha, desde, hasta){
 }
 
 /* ---------- Cálculo de datos para un conjunto de personas y rango ---------- */
+// Lunes a viernes = día laborable. Sábado y domingo se excluyen de todos los
+// KPI de cumplimiento; si hay una evaluación en sábado, se conserva visible
+// en el detalle pero no se suma a ningún promedio ni porcentaje.
+function isWeekday(fechaISO){
+  const d = new Date(fechaISO+'T00:00:00');
+  const dia = d.getDay(); // 0=domingo, 6=sábado
+  return dia>=1 && dia<=5;
+}
+
 function computeRangeStatsForPeople(personIds, desde, hasta){
   const evals = getEvaluations();
-  const porPersona = {}; // personId -> {dias:[{fecha,total,estado,comentario}], suma, count, faltasJ, faltasI}
+  const porPersona = {}; // personId -> {dias:[{fecha,total,estado,comentario,cuentaParaKPI}], suma, count, faltasJ, faltasI}
   personIds.forEach(id=>{ porPersona[id] = {dias:[], suma:0, count:0, faltasJ:0, faltasI:0}; });
 
   Object.values(evals).forEach(e=>{
     if(!porPersona[e.personId]) return;
     if(!dateInRange(e.fecha, desde, hasta)) return;
     const bucket = porPersona[e.personId];
+    const esLaborable = isWeekday(e.fecha);
     if(e.tipo==='calificado'){
-      bucket.dias.push({fecha:e.fecha, total:e.total, estado:'calificado', comentario:e.comentario});
-      bucket.suma += e.total; bucket.count++;
+      bucket.dias.push({fecha:e.fecha, total:e.total, estado:'calificado', comentario:e.comentario, cuentaParaKPI:esLaborable});
+      if(esLaborable){ bucket.suma += e.total; bucket.count++; }
     } else if(e.tipo==='falta_injustificada'){
-      bucket.dias.push({fecha:e.fecha, total:0, estado:'falta_injustificada', comentario:e.comentario});
-      bucket.suma += 0; bucket.count++; bucket.faltasI++;
+      bucket.dias.push({fecha:e.fecha, total:0, estado:'falta_injustificada', comentario:e.comentario, cuentaParaKPI:esLaborable});
+      if(esLaborable){ bucket.suma += 0; bucket.count++; bucket.faltasI++; }
     } else if(e.tipo==='falta_justificada'){
-      bucket.dias.push({fecha:e.fecha, total:null, estado:'falta_justificada', comentario:e.comentario});
-      bucket.faltasJ++;
+      bucket.dias.push({fecha:e.fecha, total:null, estado:'falta_justificada', comentario:e.comentario, cuentaParaKPI:esLaborable});
+      if(esLaborable){ bucket.faltasJ++; }
     }
   });
 
@@ -1431,7 +1443,7 @@ function renderReportPreview(){
       <div class="stat"><div class="num" style="color:var(--rojo)">${summary.faltas}</div><div class="lbl">Faltas</div></div>
       <div class="stat">
         <div class="num">${calif.pct!==null?calif.pct.toFixed(0)+'%':'—'}</div>
-        <div class="lbl">% Cumplim. de Calificaciones</div>
+        <div class="lbl">KPI de Cumplimiento</div>
         ${nivelCalif?`<span class="compliance-tag ${nivelCalif.claseTag}" style="margin-top:4px;">${nivelCalif.label}</span>`:''}
       </div>
     </div>
@@ -1443,11 +1455,16 @@ function renderReportPreview(){
 /* ---------- Resumen general dinámico (Equipo total / Calificados / Pendientes / Faltas) ----------
    "Pendientes" se calcula sobre días-persona esperados en el periodo (un registro por persona por día)
    menos los días-persona ya registrados (calificado, falta justificada o injustificada). */
+// Cuenta solo días laborables (lunes a viernes) en el rango inclusivo.
+// Usado como base de "días esperados" para Pendientes y los KPI.
 function countWeekdaysInclusive(desde, hasta){
   let count=0;
   let d = new Date(desde+'T00:00:00');
   const end = new Date(hasta+'T00:00:00');
-  while(d<=end){ count++; d.setDate(d.getDate()+1); }
+  while(d<=end){
+    if(isWeekday(d.toISOString().slice(0,10))) count++;
+    d.setDate(d.getDate()+1);
+  }
   return count;
 }
 
@@ -1461,6 +1478,7 @@ function computeGeneralSummary(people, desde, hasta){
   Object.values(evals).forEach(e=>{
     if(!ids.has(e.personId)) return;
     if(!dateInRange(e.fecha, desde, hasta)) return;
+    if(!isWeekday(e.fecha)) return; // sábado/domingo: se ignora para todos los KPI
     if(e.tipo==='calificado') calificados++;
     else if(e.tipo==='falta_injustificada') faltasI++;
     else if(e.tipo==='falta_justificada') faltasJ++;
@@ -1532,10 +1550,10 @@ function buildSucursalReportHTML(sucursal, desde, hasta){
         <span><b>${countGlobal}</b> calificaciones en el periodo</span>
         <span><b>${faltasJ}</b> faltas justificadas</span>
         <span><b>${faltasI}</b> faltas sin justificar</span>
-        ${nivel?`<span class="compliance-tag ${nivel.claseTag}">Orden y Limpieza: ${nivel.label}</span>`:''}
+        ${nivel?`<span class="compliance-tag ${nivel.claseTag}">KPI de Orden y Limpieza: ${nivel.label}</span>`:''}
       </div>
       <div class="suc-meta" style="margin-bottom:10px;padding-top:8px;border-top:1px dashed var(--gris-200);">
-        <span style="font-weight:700;color:var(--gris-600);">% Cumplimiento de Calificaciones (supervisores):</span>
+        <span style="font-weight:700;color:var(--gris-600);">KPI de Cumplimiento (supervisores):</span>
         <span style="font-weight:800;">${calif.pct!==null?calif.pct.toFixed(0)+'%':'Sin datos'}</span>
         ${nivelCalif?`<span class="compliance-tag ${nivelCalif.claseTag}">${nivelCalif.label}</span>`:''}
       </div>
@@ -1581,7 +1599,7 @@ function buildPersonReportHTML(persona, desde, hasta){
         <span><b>${agg.promedio!==null?agg.promedio.toFixed(1):'—'}</b> promedio /10</span>
         <span><b>${agg.faltasJ}</b> faltas justificadas</span>
         <span><b>${agg.faltasI}</b> faltas sin justificar</span>
-        ${nivel?`<span class="compliance-tag ${nivel.claseTag}">${nivel.label}</span>`:''}
+        ${nivel?`<span class="compliance-tag ${nivel.claseTag}">KPI de Orden y Limpieza: ${nivel.label}</span>`:''}
       </div>
       ${nivel ? `<div class="card" style="box-shadow:none;border:1px solid var(--gris-200);margin-bottom:10px;">
         <b style="font-size:12.5px;color:var(--gris-600);">Acción recomendada:</b>
@@ -1668,7 +1686,7 @@ function generatePDF(){
       doc.setFillColor(c[0],c[1],c[2]);
       doc.roundedRect(40, y, 150, 20, 4, 4, 'F');
       doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont(undefined,'bold');
-      doc.text(`Orden y Limpieza: ${pct!==null?pct.toFixed(0)+'%':'S/D'} · ${nivel.label}`, 45, y+14);
+      doc.text(`KPI Orden y Limpieza: ${pct!==null?pct.toFixed(0)+'%':'S/D'} · ${nivel.label}`, 45, y+14);
       doc.setTextColor(0,0,0);
     }
     // pct badge (% Cumplimiento de Calificaciones)
@@ -1677,7 +1695,7 @@ function generatePDF(){
       doc.setFillColor(c2[0],c2[1],c2[2]);
       doc.roundedRect(200, y, 170, 20, 4, 4, 'F');
       doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont(undefined,'bold');
-      doc.text(`Cumplim. Calificaciones: ${califInfo.pct!==null?califInfo.pct.toFixed(0)+'%':'S/D'} · ${califInfo.nivel.label}`, 205, y+14);
+      doc.text(`KPI Cumplimiento: ${califInfo.pct!==null?califInfo.pct.toFixed(0)+'%':'S/D'} · ${califInfo.nivel.label}`, 205, y+14);
       doc.setTextColor(0,0,0);
     }
     y += 32;
@@ -2143,7 +2161,7 @@ function renderSupervisoresList(){
       <div class="stat"><div class="num">${calif.esperados}</div><div class="lbl">Evaluaciones esperadas</div></div>
       <div class="stat">
         <div class="num">${calif.pct!==null?calif.pct.toFixed(0)+'%':'—'}</div>
-        <div class="lbl">% Cumplim. de Calificaciones ${sucFiltro?'· '+sucFiltro:'· General'}</div>
+        <div class="lbl">KPI de Cumplimiento ${sucFiltro?'· '+sucFiltro:'· General'}</div>
         ${nivelCalif?`<span class="compliance-tag ${nivelCalif.claseTag}" style="margin-top:4px;">${nivelCalif.label}</span>`:''}
       </div>
     </div>
@@ -2169,7 +2187,7 @@ function renderSupervisoresList(){
             </div>
           </div>
           <div style="text-align:right;">
-            <div style="font-size:20px;font-weight:800;color:var(--azul-800);">${detalle.totalEvaluaciones}</div>
+            <div style="font-size:20px;font-weight:800;color:var(--texto-enfasis);">${detalle.totalEvaluaciones}</div>
             <div style="font-size:11px;color:var(--gris-600);font-weight:600;">evaluaciones realizadas</div>
           </div>
         </div>
