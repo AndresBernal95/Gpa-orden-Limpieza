@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Orden, Limpieza y Acomodo · GPA</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{
+  --azul-900:#0b2540;
+  --azul-800:#0f3258;
+  --azul-700:#15406e;
+  --azul-600:#1c5189;
+  --azul-500:#2569ab;
+  --azul-100:#e7eef6;
+  --gris-50:#f6f7f9;
+  --gris-100:#eceef2;
+  --gris-200:#dde1e7;
+  --gris-400:#9aa3af;
+  --gris-600:#5b6472;
+  --gris-800:#2a313b;
+  --verde:#1f9d55;
+  --verde-bg:#e6f6ec;
+  --amarillo:#d9a307;
+  --amarillo-bg:#fdf3da;
+  --rojo:#d6403f;
+  --rojo-bg:#fbe7e6;
+  --blanco:#ffffff;
+  --superficie:#ffffff;
+  --texto-enfasis:#0b2540;
+  --radio:10px;
+  --sombra:0 1px 3px rgba(15,40,70,.08), 0 1px 2px rgba(15,40,70,.06);
+  --sombra-lg:0 8px 24px rgba(15,40,70,.12);
+  font-size:16px;
+}
+html[data-theme="dark"]{
+  --azul-900:#060f1c;
+  --azul-800:#0d2236;
+  --azul-700:#16395c;
+  --azul-600:#1e4a78;
+  --azul-500:#2f6cab;
+  --azul-100:#16314c;
+  --gris-50:#11161d;
+  --gris-100:#1a212b;
+  --gris-200:#2b3543;
+  --gris-400:#6b7685;
+  --gris-600:#a8b2bf;
+  --gris-800:#eef1f4;
+  --verde:#3fcf80;
+  --verde-bg:#0f2a1c;
+  --amarillo:#e8bb3a;
+  --amarillo-bg:#2e2510;
+  --rojo:#ef6361;
+  --rojo-bg:#3a1413;
+  --blanco:#11161d;
+  --superficie:#1a212b;
+  --texto-enfasis:#9bc8f0;
+  --sombra:0 1px 3px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.25);
+  --sombra-lg:0 8px 28px rgba(0,0,0,.5);
+}
+html[data-theme="dark"] body{ background:var(--gris-50); color:var(--gris-800); }
+html{ transition:background-color .2s; }
+body, .card, .stat, .person-row, .suc-card, .modal, .login-card, .report-builder, .modal-head, .modal-foot{
+  transition:background-color .2s, color .2s, border-color .2s;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  background:var(--gris-50);
+  color:var(--gris-800);
+  min-height:100vh;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  background:var(--azul-900);
+  color:#fff;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  position:sticky;
+  top:0;
+  z-index:40;
+  box-shadow:var(--sombra);
+}
+.topbar .brand{
+  display:flex;align-items:center;gap:10px;
+}
+.brand-mark{
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,var(--azul-500),var(--azul-700));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:14px;color:#fff;
+  flex-shrink:0;
+}
+.brand-text{display:flex;flex-direction:column;line-height:1.1;}
+.brand-text strong{font-size:14px;font-weight:700;}
+.brand-text span{font-size:11px;color:var(--azul-100);opacity:.85;}
+.user-chip{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;
+}
+.user-chip .who{text-align:right;line-height:1.2;}
+.user-chip .who b{display:block;font-size:13px;}
+.user-chip .who small{display:block;font-size:11px;color:var(--azul-100);opacity:.8;}
+.logout-btn{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff;border-radius:8px;
+  padding:7px 12px;font-size:12.5px;font-weight:600;
+  transition:background .15s;
+}
+.logout-btn:hover{background:rgba(255,255,255,.22);}
+.theme-toggle-btn{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.25);
+  color:#fff;border-radius:8px;
+  width:34px;height:34px;font-size:15px;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.theme-toggle-btn:hover{background:rgba(255,255,255,.22);}
+
+/* ---------- Layout ---------- */
+.container{max-width:920px;margin:0 auto;padding:18px 16px 80px;}
+.container.wide{max-width:1180px;}
+
+/* ---------- Login ---------- */
+.login-wrap{
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(37,105,171,.25), transparent 45%),
+    radial-gradient(circle at 90% 90%, rgba(15,50,88,.3), transparent 50%),
+    var(--azul-900);
+  padding:24px;
+}
+.login-card{
+  background:var(--superficie);border-radius:16px;
+  width:100%;max-width:380px;
+  padding:34px 30px 28px;
+  box-shadow:var(--sombra-lg);
+}
+.login-logo{
+  width:56px;height:56px;border-radius:14px;
+  background:linear-gradient(135deg,var(--azul-500),var(--azul-800));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:800;font-size:20px;
+  margin:0 auto 16px;
+}
+.login-card h1{
+  text-align:center;font-size:18px;margin:0 0 2px;color:var(--texto-enfasis);
+  font-weight:700;
+}
+.login-card p.sub{
+  text-align:center;color:var(--gris-600);font-size:13px;margin:0 0 24px;
+}
+.field{margin-bottom:14px;}
+.field label{
+  display:block;font-size:12.5px;font-weight:600;color:var(--gris-600);
+  margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;
+}
+.field input{
+  width:100%;padding:12px 14px;border:1.5px solid var(--gris-200);
+  border-radius:9px;font-size:15px;background:var(--gris-50);
+  transition:border-color .15s, background .15s;
+}
+.field input:focus{
+  outline:none;border-color:var(--azul-500);background:var(--superficie);
+}
+.login-btn{
+  width:100%;padding:13px;border:none;border-radius:9px;
+  background:var(--azul-700);color:#fff;font-weight:700;font-size:15px;
+  margin-top:6px;transition:background .15s;
+}
+.login-btn:hover{background:var(--azul-600);}
+.login-error{
+  background:var(--rojo-bg);color:var(--rojo);font-size:13px;
+  padding:10px 12px;border-radius:8px;margin-bottom:14px;
+  display:none;font-weight:600;
+}
+.login-hint{
+  text-align:center;color:var(--gris-400);font-size:11.5px;margin-top:20px;
+}
+
+/* ---------- Page header ---------- */
+.page-head{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;margin-bottom:18px;
+}
+.page-head h2{margin:0;font-size:20px;color:var(--texto-enfasis);font-weight:700;}
+.page-head p{margin:3px 0 0;color:var(--gris-600);font-size:13.5px;}
+.date-badge{
+  background:var(--azul-100);color:var(--azul-800);
+  font-weight:700;font-size:13px;padding:7px 13px;border-radius:20px;
+}
+
+/* ---------- Tabs (admin) ---------- */
+.tabs{
+  display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;
+  border-bottom:1px solid var(--gris-200);
+}
+.tab-btn{
+  background:none;border:none;padding:10px 16px;font-size:13.5px;
+  font-weight:600;color:var(--gris-600);border-bottom:2.5px solid transparent;
+  white-space:nowrap;
+}
+.tab-btn.active{color:var(--azul-700);border-color:var(--azul-700);}
+
+/* ---------- Cards / lists ---------- */
+.card{
+  background:var(--superficie);border-radius:var(--radio);box-shadow:var(--sombra);
+  padding:16px;margin-bottom:12px;
+}
+.summary-row{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-bottom:18px;
+}
+.stat{
+  background:var(--superficie);border-radius:var(--radio);box-shadow:var(--sombra);
+  padding:14px 16px;
+}
+.stat .num{font-size:24px;font-weight:800;color:var(--texto-enfasis);line-height:1.1;}
+.stat .lbl{font-size:11.5px;color:var(--gris-600);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.02em;}
+
+.person-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--superficie);border-radius:var(--radio);box-shadow:var(--sombra);
+  padding:14px 16px;margin-bottom:10px;gap:12px;
+}
+.person-info{display:flex;align-items:center;gap:12px;min-width:0;}
+.avatar{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:var(--azul-100);color:var(--azul-700);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;
+}
+.person-text{min-width:0;}
+.person-text .pname{font-weight:700;font-size:14.5px;color:var(--gris-800);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.person-text .ppuesto{font-size:12.5px;color:var(--gris-600);}
+.person-status{flex-shrink:0;text-align:right;}
+.badge{
+  display:inline-block;padding:5px 11px;border-radius:20px;
+  font-size:12px;font-weight:700;
+}
+.badge.pendiente{background:var(--gris-100);color:var(--gris-600);}
+.badge.calificado{background:var(--verde-bg);color:var(--verde);}
+.badge.falta-j{background:var(--amarillo-bg);color:var(--amarillo);}
+.badge.falta-i{background:var(--rojo-bg);color:var(--rojo);}
+.score-pill{
+  font-size:18px;font-weight:800;color:var(--texto-enfasis);
+}
+.eval-btn{
+  background:var(--azul-700);color:#fff;border:none;border-radius:8px;
+  padding:9px 14px;font-size:13px;font-weight:700;white-space:nowrap;
+}
+.eval-btn.secondary{background:var(--superficie);color:var(--azul-700);border:1.5px solid var(--azul-700);}
+.eval-btn:hover{opacity:.9;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+.locked-tag{
+  font-size:12px;font-weight:700;color:var(--gris-400);
+  display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+}
+
+/* filter chips */
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.chip{
+  background:var(--superficie);border:1.5px solid var(--gris-200);color:var(--gris-600);
+  padding:7px 14px;border-radius:20px;font-size:12.5px;font-weight:600;
+}
+.chip.active{background:var(--azul-700);border-color:var(--azul-700);color:#fff;}
+.search-input{
+  flex:1;min-width:160px;padding:9px 14px;border-radius:20px;
+  border:1.5px solid var(--gris-200);font-size:13px;
+}
+
+/* ---------- Modal (evaluación) ---------- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(11,37,64,.55);
+  display:none;align-items:flex-end;justify-content:center;z-index:100;
+  backdrop-filter:blur(2px);
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--superficie);width:100%;max-width:540px;
+  border-radius:18px 18px 0 0;
+  max-height:92vh;overflow-y:auto;
+  animation:slideUp .22s ease-out;
+  padding-bottom:env(safe-area-inset-bottom,0);
+}
+@media(min-width:640px){
+  .modal-overlay{align-items:center;}
+  .modal{border-radius:18px;max-height:88vh;}
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-head{
+  padding:18px 20px 14px;border-bottom:1px solid var(--gris-100);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--superficie);z-index:5;
+}
+.modal-head .who{display:flex;align-items:center;gap:12px;}
+.modal-head .pname{font-weight:700;font-size:16px;}
+.modal-head .ppuesto{font-size:12.5px;color:var(--gris-600);}
+.close-x{
+  background:var(--gris-100);border:none;width:32px;height:32px;border-radius:50%;
+  font-size:16px;color:var(--gris-600);display:flex;align-items:center;justify-content:center;
+}
+.modal-body{padding:16px 20px 6px;}
+
+.mode-toggle{
+  display:flex;background:var(--gris-100);border-radius:10px;padding:4px;margin-bottom:18px;
+}
+.mode-toggle button{
+  flex:1;border:none;background:none;padding:9px;border-radius:8px;
+  font-size:13px;font-weight:700;color:var(--gris-600);
+}
+.mode-toggle button.active{background:var(--superficie);color:var(--azul-700);box-shadow:var(--sombra);}
+
+.falta-options{display:none;gap:10px;margin-bottom:10px;}
+.falta-options.show{display:flex;}
+.falta-opt{
+  flex:1;padding:14px;border-radius:10px;border:2px solid var(--gris-200);
+  text-align:center;font-weight:700;font-size:13.5px;background:var(--superficie);color:var(--gris-600);
+}
+.falta-opt.sel-j{border-color:var(--amarillo);background:var(--amarillo-bg);color:var(--amarillo);}
+.falta-opt.sel-i{border-color:var(--rojo);background:var(--rojo-bg);color:var(--rojo);}
+
+.q-block{margin-bottom:16px;}
+.q-num{
+  display:inline-flex;width:22px;height:22px;border-radius:50%;
+  background:var(--azul-100);color:var(--azul-700);font-size:11.5px;font-weight:800;
+  align-items:center;justify-content:center;margin-right:7px;flex-shrink:0;
+}
+.q-text{font-size:13.8px;font-weight:600;color:var(--gris-800);line-height:1.4;
+  display:flex;align-items:flex-start;gap:0;margin-bottom:9px;}
+.q-options{display:flex;gap:7px;}
+.q-opt{
+  flex:1;padding:11px 4px;border-radius:9px;border:2px solid var(--gris-200);
+  background:var(--superficie);font-size:12px;font-weight:700;text-align:center;color:var(--gris-600);
+  line-height:1.25;
+}
+.q-opt small{display:block;font-size:10px;font-weight:600;opacity:.75;margin-top:1px;}
+.q-opt.sel-ok{border-color:var(--verde);background:var(--verde-bg);color:var(--verde);}
+.q-opt.sel-mid{border-color:var(--amarillo);background:var(--amarillo-bg);color:var(--amarillo);}
+.q-opt.sel-no{border-color:var(--rojo);background:var(--rojo-bg);color:var(--rojo);}
+
+.q11-box textarea{
+  width:100%;border:1.5px solid var(--gris-200);border-radius:9px;
+  padding:11px 13px;font-size:13.5px;resize:vertical;min-height:64px;
+}
+
+.score-preview{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--azul-100);border-radius:10px;padding:13px 16px;margin:16px 0;
+}
+.score-preview .lbl{font-size:12.5px;font-weight:700;color:var(--texto-enfasis);}
+.score-preview .val{font-size:24px;font-weight:800;color:var(--texto-enfasis);}
+
+.modal-foot{
+  padding:14px 20px 20px;position:sticky;bottom:0;background:var(--superficie);
+  border-top:1px solid var(--gris-100);
+}
+.save-btn{
+  width:100%;padding:14px;border:none;border-radius:10px;
+  background:var(--verde);color:#fff;font-weight:700;font-size:15px;
+}
+.save-btn:disabled{background:var(--gris-400);}
+
+/* ---------- Reportes (admin) ---------- */
+.suc-card{
+  background:var(--superficie);border-radius:14px;box-shadow:var(--sombra);
+  padding:18px 20px;margin-bottom:14px;
+}
+.suc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.suc-head .name{font-weight:800;font-size:16px;color:var(--texto-enfasis);}
+.suc-head .pct{font-size:22px;font-weight:800;}
+.pct.high{color:var(--verde);}
+.pct.mid{color:var(--amarillo);}
+.pct.low{color:var(--rojo);}
+.bar-bg{height:8px;border-radius:6px;background:var(--gris-100);overflow:hidden;margin-bottom:10px;}
+.bar-fill{height:100%;border-radius:6px;}
+.bar-fill.high{background:var(--verde);}
+.bar-fill.mid{background:var(--amarillo);}
+.bar-fill.low{background:var(--rojo);}
+.suc-meta{display:flex;gap:16px;font-size:12px;color:var(--gris-600);flex-wrap:wrap;}
+.suc-meta b{color:var(--gris-800);}
+
+.table-wrap{overflow-x:auto;}
+table.rep-table{width:100%;border-collapse:collapse;font-size:13px;}
+table.rep-table th{
+  text-align:left;padding:9px 10px;background:var(--gris-50);
+  color:var(--gris-600);font-weight:700;font-size:11.5px;text-transform:uppercase;
+  letter-spacing:.02em;border-bottom:1px solid var(--gris-200);white-space:nowrap;
+}
+table.rep-table td{padding:9px 10px;border-bottom:1px solid var(--gris-100);white-space:nowrap;}
+table.rep-table tr:hover td{background:var(--gris-50);}
+
+.export-btn{
+  background:var(--azul-700);color:#fff;border:none;border-radius:8px;
+  padding:10px 16px;font-size:13px;font-weight:700;display:inline-flex;
+  align-items:center;gap:6px;
+}
+.export-btn.outline{background:var(--superficie);color:var(--azul-700);border:1.5px solid var(--azul-700);}
+
+.empty-state{
+  text-align:center;padding:50px 20px;color:var(--gris-400);
+}
+.empty-state .ic{font-size:38px;margin-bottom:10px;}
+.empty-state p{font-size:14px;margin:0;}
+
+.detail-row{cursor:pointer;}
+.history-card{display:none;}
+.history-card.open{display:block;}
+
+select.sel-filter{
+  padding:9px 14px;border-radius:8px;border:1.5px solid var(--gris-200);
+  font-size:13px;background:var(--superficie);font-weight:600;color:var(--gris-800);
+}
+
+/* ---------- Report builder ---------- */
+.report-builder{
+  background:var(--superficie);border-radius:14px;box-shadow:var(--sombra);
+  padding:18px 20px;margin-bottom:18px;
+}
+.rb-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;align-items:flex-end;}
+.rb-field{display:flex;flex-direction:column;gap:6px;min-width:160px;flex:1;}
+.rb-field label{font-size:11.5px;font-weight:700;color:var(--gris-600);text-transform:uppercase;letter-spacing:.02em;}
+.rb-field input, .rb-field select{
+  padding:10px 12px;border-radius:8px;border:1.5px solid var(--gris-200);
+  font-size:13.5px;background:var(--gris-50);
+}
+.rb-field input:focus, .rb-field select:focus{outline:none;border-color:var(--azul-500);background:var(--superficie);}
+.period-toggle{display:flex;gap:6px;background:var(--gris-100);border-radius:9px;padding:4px;}
+.period-toggle button{
+  border:none;background:none;padding:9px 14px;border-radius:7px;
+  font-size:12.5px;font-weight:700;color:var(--gris-600);white-space:nowrap;
+}
+.period-toggle button.active{background:var(--superficie);color:var(--azul-700);box-shadow:var(--sombra);}
+.scope-toggle{display:flex;gap:6px;background:var(--gris-100);border-radius:9px;padding:4px;}
+.scope-toggle button{
+  border:none;background:none;padding:9px 14px;border-radius:7px;
+  font-size:12.5px;font-weight:700;color:var(--gris-600);white-space:nowrap;
+}
+.scope-toggle button.active{background:var(--superficie);color:var(--azul-700);box-shadow:var(--sombra);}
+.rb-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;}
+.pdf-btn{
+  background:var(--rojo);color:#fff;border:none;border-radius:8px;
+  padding:11px 18px;font-size:13.5px;font-weight:700;display:inline-flex;
+  align-items:center;gap:7px;
+}
+.pdf-btn:hover{opacity:.9;}
+.pdf-btn:disabled{background:var(--gris-400);}
+
+.compliance-tag{
+  display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;
+}
+.compliance-tag.bien{background:var(--verde-bg);color:var(--verde);}
+.compliance-tag.atencion{background:var(--amarillo-bg);color:var(--amarillo);}
+.compliance-tag.critico{background:var(--rojo-bg);color:var(--rojo);}
+
+/* ---------- KPI cards (3 columnas por sucursal) ---------- */
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:12px;
+}
+.kpi-card{
+  background:var(--gris-50);
+  border-radius:10px;
+  padding:12px 14px;
+  display:flex;flex-direction:column;gap:4px;
+  position:relative;
+}
+.kpi-card .kpi-label{
+  font-size:10.5px;font-weight:700;color:var(--gris-600);
+  text-transform:uppercase;letter-spacing:.03em;
+}
+.kpi-card .kpi-value{
+  font-size:22px;font-weight:800;color:var(--texto-enfasis);line-height:1.1;
+}
+.kpi-card .kpi-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;
+  width:fit-content;cursor:default;
+}
+.kpi-card .kpi-tag.bien{ background:var(--verde-bg);color:var(--verde); }
+.kpi-card .kpi-tag.atencion{ background:var(--amarillo-bg);color:var(--amarillo); }
+.kpi-card .kpi-tag.critico{ background:var(--rojo-bg);color:var(--rojo); }
+.kpi-card .kpi-tag.sin-datos{ background:var(--gris-100);color:var(--gris-400); }
+
+/* Tooltip del semáforo */
+.kpi-tooltip{
+  display:none;
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;transform:translateX(-50%);
+  background:var(--gris-800);color:var(--gris-50);
+  font-size:12px;line-height:1.45;font-weight:500;
+  padding:10px 13px;border-radius:9px;
+  width:240px;z-index:50;
+  box-shadow:var(--sombra-lg);
+  pointer-events:none;
+}
+.kpi-tooltip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:var(--gris-800);
+}
+.kpi-card:hover .kpi-tooltip,
+.kpi-card:focus-within .kpi-tooltip{display:block;}
+
+/* En mobile (tap), mostramos el tooltip con clase toggle */
+.kpi-card.tooltip-open .kpi-tooltip{display:block;}
+
+@media(max-width:560px){
+  .kpi-row{grid-template-columns:1fr;}
+  .kpi-tooltip{left:0;transform:none;width:220px;}
+  .kpi-tooltip::after{left:20px;transform:none;}
+}
+
+.preview-note{
+  display:flex;align-items:center;gap:8px;color:var(--gris-600);font-size:12.5px;
+  background:var(--gris-50);padding:10px 14px;border-radius:8px;margin-bottom:14px;
+}
+
+@media (max-width:560px){
+  .container{padding:14px 12px 80px;}
+  .q-text{font-size:13px;}
+
+  .person-row{
+    flex-direction:column;
+    align-items:stretch;
+    flex-wrap:nowrap;
+    gap:10px;
+  }
+  .person-row .person-info{width:100%;}
+  .person-row .btn-row{
+    width:100%;
+    justify-content:flex-start;
+    align-items:center;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen" class="login-wrap">
+  <button class="theme-toggle-btn" id="themeBtnLogin" onclick="toggleTheme()" title="Cambiar tema" style="position:absolute;top:18px;right:18px;">🌙</button>
+  <div class="login-card">
+    <div class="login-logo">GPA</div>
+    <h1>Orden, Limpieza y Acomodo</h1>
+    <p class="sub">CEDIS &amp; Sucursales · Acceso de personal</p>
+    <div id="loginError" class="login-error">Usuario o contraseña incorrectos.</div>
+    <form id="loginForm" onsubmit="return false;">
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="loginUser" autocomplete="username" placeholder="ej. juan.hernandez">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="login-btn" id="loginBtn">Ingresar</button>
+    </form>
+    <p class="login-hint">Acceso exclusivo para personal autorizado de GPA</p>
+  </div>
+</div>
+
+<!-- ============ APP SUPERVISOR ============ -->
+<div id="appSupervisor" style="display:none;">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">GPA</div>
+      <div class="brand-text"><strong>Orden y Limpieza</strong><span id="supSucursalTag">Sucursal</span></div>
+    </div>
+    <div class="user-chip">
+      <div class="who"><b id="supNombre">—</b><small id="supPuesto">—</small></div>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtnSup" title="Cambiar tema">🌙</button>
+      <button class="logout-btn" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="page-head">
+      <div>
+        <h2>Mi equipo de hoy</h2>
+        <p>Califica a tu equipo según las actividades de Orden, Limpieza y Acomodo realizadas el día de hoy</p>
+      </div>
+      <div class="date-badge" id="supFecha">--/--/----</div>
+    </div>
+
+    <div class="summary-row" id="supStats"></div>
+
+    <div class="filters">
+      <input class="search-input" id="supSearch" placeholder="Buscar por nombre…" oninput="renderSupervisorList()">
+      <button class="chip active" data-f="todos" onclick="setSupFilter('todos')">Todos</button>
+      <button class="chip" data-f="pendiente" onclick="setSupFilter('pendiente')">Pendientes</button>
+      <button class="chip" data-f="calificado" onclick="setSupFilter('calificado')">Calificados</button>
+    </div>
+
+    <div id="supList"></div>
+  </div>
+</div>
+
+<!-- ============ APP ADMIN ============ -->
+<div id="appAdmin" style="display:none;">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">GPA</div>
+      <div class="brand-text"><strong>Orden y Limpieza</strong><span>Panel Administrador</span></div>
+    </div>
+    <div class="user-chip">
+      <div class="who"><b>Administrador</b><small>GPA</small></div>
+      <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtnAdmin" title="Cambiar tema">🌙</button>
+      <button class="logout-btn" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="container wide">
+    <div class="page-head">
+      <div>
+        <h2>Panel de cumplimiento</h2>
+        <p>Resumen general de Orden, Limpieza y Acomodo</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="reportes" onclick="setAdminTab('reportes')">Reportes</button>
+      <button class="tab-btn" data-tab="supervisores" onclick="setAdminTab('supervisores')">Supervisores</button>
+      <button class="tab-btn" data-tab="usuarios" onclick="setAdminTab('usuarios')">Usuarios</button>
+    </div>
+
+    <div id="tabReportes" class="tab-content"></div>
+    <div id="tabSupervisores" class="tab-content" style="display:none;"></div>
+    <div id="tabUsuarios" class="tab-content" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- ============ MODAL EVALUACIÓN ============ -->
+<div class="modal-overlay" id="evalModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="who">
+        <div class="avatar" id="evalAvatar">--</div>
+        <div>
+          <div class="pname" id="evalNombre">—</div>
+          <div class="ppuesto" id="evalPuesto">—</div>
+        </div>
+      </div>
+      <button class="close-x" onclick="closeEvalModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mode-toggle">
+        <button id="modeAsistio" class="active" onclick="setEvalMode('asistio')">Asistió</button>
+        <button id="modeFalta" onclick="setEvalMode('falta')">Faltó</button>
+      </div>
+
+      <div class="falta-options" id="faltaOptions">
+        <button class="falta-opt" id="faltaJustBtn" onclick="setFaltaTipo('justificada')">Falta justificada</button>
+        <button class="falta-opt" id="faltaInjustBtn" onclick="setFaltaTipo('injustificada')">Falta sin justificar<br><small style="font-weight:600;">(califica 0)</small></button>
+      </div>
+
+      <div id="questionsWrap"></div>
+
+      <div class="q11-box card" style="box-shadow:none;border:1px solid var(--gris-200);">
+        <label style="display:block;font-size:12.5px;font-weight:700;color:var(--gris-600);margin-bottom:8px;">
+          Comentario (opcional) — Orden, Limpieza y Acomodo
+        </label>
+        <textarea id="q11text" placeholder="Algo relevante que quieras anotar sobre esta persona hoy…"></textarea>
+      </div>
+
+      <div class="score-preview" id="scorePreviewWrap">
+        <span class="lbl">Calificación final</span>
+        <span class="val" id="scorePreview">0 / 10</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="save-btn" id="saveEvalBtn" onclick="saveEvaluation()">Guardar calificación</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = '/api';
+
+/* ============================================================
+   CAPA DE DATOS — sincronizada con el backend (Postgres en Vercel)
+   en lugar de localStorage. Mantiene PERSONAL y evaluacionesCache
+   como copias en memoria para que el resto del código (reportes,
+   PDF, listas) siga leyendo de forma síncrona sin reescribirse.
+============================================================ */
+let PERSONAL = [];
+let evaluacionesCache = {}; // { "personId_fecha": {...} }
+let dataReady = false;
+let dataReadyCallbacks = [];
+
+function onDataReady(cb){
+  if(dataReady) cb();
+  else dataReadyCallbacks.push(cb);
+}
+function markDataReady(){
+  dataReady = true;
+  dataReadyCallbacks.forEach(cb=>cb());
+  dataReadyCallbacks = [];
+}
+
+async function apiGet(path){
+  const res = await fetch(API_BASE + path);
+  if(!res.ok) throw new Error('Error de red: ' + res.status);
+  return res.json();
+}
+async function apiSend(path, method, body){
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok){
+    const err = new Error(data.error || data.message || 'Error de red');
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+  return data;
+}
+
+function evalRowToAppFormat(row){
+  return {
+    personId: row.person_id,
+    fecha: typeof row.fecha === 'string' ? row.fecha.slice(0,10) : row.fecha,
+    tipo: row.tipo,
+    total: row.total===null || row.total===undefined ? null : Number(row.total),
+    respuestas: row.respuestas || null,
+    comentario: row.comentario || '',
+    evaluadoPor: row.evaluado_por,
+    timestamp: row.created_at ? new Date(row.created_at).getTime() : Date.now()
+  };
+}
+
+async function refreshPersonal(){
+  const rows = await apiGet('/personal');
+  PERSONAL = rows.map(r=>({...r, activo: r.activo!==false}));
+}
+
+async function refreshEvaluaciones(){
+  const rows = await apiGet('/evaluaciones');
+  const next = {};
+  rows.forEach(row=>{
+    const fecha = typeof row.fecha === 'string' ? row.fecha.slice(0,10) : row.fecha;
+    next[`${row.person_id}_${fecha}`] = evalRowToAppFormat(row);
+  });
+  evaluacionesCache = next;
+}
+
+async function initialDataLoad(){
+  try{
+    await Promise.all([refreshPersonal(), refreshEvaluaciones()]);
+  } catch(err){
+    console.error('Error cargando datos iniciales:', err);
+    alert('No se pudo conectar con el servidor. Verifica tu conexión a internet y recarga la página.');
+  }
+  markDataReady();
+  startPolling();
+}
+
+// Refresco periódico para que los cambios de otros dispositivos (otras
+// sucursales, el Admin) aparezcan sin que el usuario tenga que recargar.
+let pollingHandle = null;
+function startPolling(){
+  if(pollingHandle) return;
+  pollingHandle = setInterval(async ()=>{
+    try{
+      await refreshEvaluaciones();
+      if(currentUser && currentUser.role==='supervisor') renderSupervisorList();
+      if(currentUser && currentUser.role==='admin' && typeof refreshCurrentAdminView==='function') refreshCurrentAdminView();
+    }catch(e){ /* fallo silencioso: se reintenta en el siguiente ciclo */ }
+  }, 12000);
+}
+
+function getCurrentPersonal(){ return PERSONAL; }
+
+function nextPersonalId(){
+  return PERSONAL.reduce((max,p)=>Math.max(max,p.id), 0) + 1;
+}
+
+async function slugifyUsernamePreview(nombre){
+  // Solo para mostrar una vista previa en el formulario; el username real
+  // definitivo lo asigna el servidor para evitar condiciones de carrera.
+  const norm = nombre.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const parts = norm.split(/\s+/).map(s=>s.replace(/[^a-z]/g,'')).filter(Boolean);
+  if(parts.length===0) return 'user';
+  if(parts.length===1) return parts[0];
+  return `${parts[0]}.${parts[parts.length-1]}`;
+}
+
+const PREGUNTAS = [
+  "Eliminó polvo y suciedad de cajas, producto químico, lámparas, barandales, escaleras y lonas (si aplica).",
+  "Eliminó desperdicio de material innecesario (madera, plástico, tarimas, cajas, flejes, emplaye, residuos).",
+  "Eliminó artículos ajenos a la operación (termos, tuppers, comida, artículos personales, handhelds sin asignar, papeles, etc.).",
+  "Colocó artículos de limpieza y equipo de trabajo en su zona asignada (escobas, plumeros, trapos, aspiradora, escaleras, carritos, diablitos).",
+  "Pasillos libres y despejados, sin mercancía fuera de ubicación.",
+  "Cajas cerradas correctamente, evitando deterioro o maltrato del producto.",
+  "Estibas seguras y acomodadas (sin riesgo de caída) y producto frenteado para fácil pickeo.",
+  "Cambió tarimas y cajas en mal estado.",
+  "Vació correctamente los botes de basura en los contenedores.",
+  "Realizó su inventario cíclico y verificó que el producto esté en la ubicación asignada."
+];
+
+const SESSION_KEY = "gpa_olm_session_v1";
+const THEME_KEY = "gpa_olm_theme_v1";
+
+/* ============================================================
+   MODO OSCURO / CLARO
+============================================================ */
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  const icon = theme==='dark' ? '☀️' : '🌙';
+  const btnSup = document.getElementById('themeBtnSup');
+  const btnAdmin = document.getElementById('themeBtnAdmin');
+  const btnLogin = document.getElementById('themeBtnLogin');
+  if(btnSup) btnSup.textContent = icon;
+  if(btnAdmin) btnAdmin.textContent = icon;
+  if(btnLogin) btnLogin.textContent = icon;
+}
+function toggleTheme(){
+  const current = document.documentElement.getAttribute('data-theme') || 'light';
+  const next = current==='dark' ? 'light' : 'dark';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+}
+function initTheme(){
+  const saved = localStorage.getItem(THEME_KEY) || 'light';
+  applyTheme(saved);
+}
+
+/* ============================================================
+   UTILIDADES
+============================================================ */
+function todayISO(){
+  const d = new Date();
+  const tz = new Date(d.getTime() - d.getTimezoneOffset()*60000);
+  return tz.toISOString().slice(0,10);
+}
+function fmtFechaCorta(iso){
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function initials(nombre){
+  const parts = nombre.trim().split(/\s+/);
+  if(parts.length===1) return parts[0].slice(0,2).toUpperCase();
+  return (parts[0][0]+parts[1][0]).toUpperCase();
+}
+function getEvaluations(){
+  return evaluacionesCache;
+}
+async function saveEvaluations(data){
+  // Ya no se usa para escritura masiva; se mantiene por compatibilidad con
+  // código existente que pudiera llamarla, pero el guardado real ahora ocurre
+  // evaluación por evaluación vía apiSend en saveEvaluation().
+  evaluacionesCache = data;
+}
+function evalKey(personId, fecha){ return `${personId}_${fecha}`; }
+
+function getOperativosBySucursal(sucursal){
+  return PERSONAL.filter(p=>p.role==='operativo' && p.sucursal===sucursal && p.activo!==false);
+
+}
+
+/* ============================================================
+   SESIÓN / LOGIN
+============================================================ */
+let currentUser = null;
+
+async function tryRestoreSession(){
+  try{
+    const u = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+    if(u && u.username && u.password){
+      const result = await apiSend('/login', 'POST', {username:u.username, password:u.password});
+      if(result.success){ currentUser = result.user; return true; }
+    }
+  }catch(e){}
+  return false;
+}
+
+document.getElementById('loginBtn').addEventListener('click', doLogin);
+document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+async function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const errBox = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+
+  if(!u || !p){ errBox.style.display='block'; return; }
+
+  btn.disabled = true; btn.textContent = 'Ingresando…';
+  try{
+    const result = await apiSend('/login', 'POST', {username:u, password:p});
+    if(!result.success){
+      errBox.style.display='block';
+      btn.disabled = false; btn.textContent = 'Ingresar';
+      return;
+    }
+    errBox.style.display='none';
+    currentUser = result.user;
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({username:u, password:p, id:result.user.id}));
+    await enterApp();
+  } catch(err){
+    console.error('Error en login:', err);
+    errBox.textContent = 'No se pudo conectar con el servidor. Verifica tu internet e intenta de nuevo.';
+    errBox.style.display='block';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Ingresar';
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem(SESSION_KEY);
+  currentUser = null;
+  document.getElementById('appSupervisor').style.display='none';
+  document.getElementById('appAdmin').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+
+async function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  await new Promise(resolve=> onDataReady(resolve));
+  if(currentUser.role==='admin'){
+    document.getElementById('appAdmin').style.display='block';
+    document.getElementById('appSupervisor').style.display='none';
+    initAdmin();
+  } else {
+    document.getElementById('appSupervisor').style.display='block';
+    document.getElementById('appAdmin').style.display='none';
+    initSupervisor();
+  }
+  initTheme();
+}
+
+/* ============================================================
+   VISTA SUPERVISOR
+============================================================ */
+let supFilter = 'todos';
+
+function initSupervisor(){
+  document.getElementById('supNombre').textContent = currentUser.nombre;
+  document.getElementById('supPuesto').textContent = currentUser.puesto;
+  document.getElementById('supSucursalTag').textContent = currentUser.sucursal;
+  document.getElementById('supFecha').textContent = fmtFechaCorta(todayISO());
+  renderSupervisorList();
+}
+
+function setSupFilter(f){
+  supFilter = f;
+  document.querySelectorAll('#appSupervisor .chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`#appSupervisor .chip[data-f="${f}"]`).classList.add('active');
+  renderSupervisorList();
+}
+
+function renderSupervisorList(){
+  const fecha = todayISO();
+  const evals = getEvaluations();
+  const team = getOperativosBySucursal(currentUser.sucursal);
+  const search = document.getElementById('supSearch').value.trim().toLowerCase();
+
+  let calificados=0, pendientes=0, faltasJ=0, faltasI=0;
+  team.forEach(p=>{
+    const e = evals[evalKey(p.id, fecha)];
+    if(!e) pendientes++;
+    else if(e.tipo==='falta_justificada') faltasJ++;
+    else if(e.tipo==='falta_injustificada') faltasI++;
+    else calificados++;
+  });
+
+  document.getElementById('supStats').innerHTML = `
+    <div class="stat"><div class="num">${team.length}</div><div class="lbl">Equipo total</div></div>
+    <div class="stat"><div class="num" style="color:var(--verde)">${calificados}</div><div class="lbl">Calificados</div></div>
+    <div class="stat"><div class="num" style="color:var(--gris-600)">${pendientes}</div><div class="lbl">Pendientes</div></div>
+    <div class="stat"><div class="num" style="color:var(--rojo)">${faltasJ+faltasI}</div><div class="lbl">Faltas hoy</div></div>
+  `;
+
+  let filtered = team.filter(p=>{
+    if(search && !p.nombre.toLowerCase().includes(search)) return false;
+    const e = evals[evalKey(p.id, fecha)];
+    if(supFilter==='pendiente' && e) return false;
+    if(supFilter==='calificado' && !e) return false;
+    return true;
+  });
+
+  const listEl = document.getElementById('supList');
+  if(filtered.length===0){
+    listEl.innerHTML = `<div class="empty-state"><div class="ic">📋</div><p>No hay personal que coincida con el filtro.</p></div>`;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(p=>{
+    const e = evals[evalKey(p.id, fecha)];
+    let statusHtml, actionHtml;
+    if(!e){
+      statusHtml = `<span class="badge pendiente">Pendiente</span>`;
+      actionHtml = `<button class="eval-btn" onclick="openEvalModal(${p.id})">Calificar</button>`;
+    } else if(e.tipo==='falta_justificada'){
+      statusHtml = `<span class="badge falta-j">Falta justificada</span>`;
+      actionHtml = `<span class="locked-tag">🔒 Registrado</span>`;
+    } else if(e.tipo==='falta_injustificada'){
+      statusHtml = `<span class="badge falta-i">Falta sin justificar · 0</span>`;
+      actionHtml = `<span class="locked-tag">🔒 Registrado</span>`;
+    } else {
+      statusHtml = `<span class="score-pill">${e.total.toFixed(1)}<span style="font-size:12px;color:var(--gris-400);font-weight:600;">/10</span></span>`;
+      actionHtml = `<span class="locked-tag">🔒 Registrado</span>`;
+    }
+    return `
+      <div class="person-row">
+        <div class="person-info">
+          <div class="avatar">${initials(p.nombre)}</div>
+          <div class="person-text">
+            <div class="pname">${p.nombre}</div>
+            <div class="ppuesto">${p.puesto}</div>
+          </div>
+        </div>
+        <div class="btn-row" style="align-items:center;">
+          ${statusHtml}
+          ${actionHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ============================================================
+   MODAL DE EVALUACIÓN
+============================================================ */
+let evalState = null; // {personId, fecha, mode, faltaTipo, respuestas[], comentario}
+
+function openEvalModal(personId){
+  const fecha = todayISO();
+  const person = PERSONAL.find(p=>p.id===personId);
+  const evals = getEvaluations();
+  const existing = evals[evalKey(personId, fecha)];
+
+  if(existing){
+    alert('Esta persona ya fue calificada el día de hoy. La calificación quedó registrada y no puede modificarse.');
+    return;
+  }
+
+  evalState = {
+    personId, fecha,
+    mode: 'asistio',
+    faltaTipo: null,
+    respuestas: Array(10).fill(null),
+    comentario: ''
+  };
+
+  document.getElementById('evalAvatar').textContent = initials(person.nombre);
+  document.getElementById('evalNombre').textContent = person.nombre;
+  document.getElementById('evalPuesto').textContent = person.puesto;
+  document.getElementById('q11text').value = evalState.comentario;
+
+  renderQuestions();
+  setEvalMode(evalState.mode, true);
+  updateScorePreview();
+
+  document.getElementById('evalModal').classList.add('open');
+}
+
+function closeEvalModal(){
+  document.getElementById('evalModal').classList.remove('open');
+  evalState = null;
+}
+
+function setEvalMode(mode, skipRender){
+  evalState.mode = mode;
+  document.getElementById('modeAsistio').classList.toggle('active', mode==='asistio');
+  document.getElementById('modeFalta').classList.toggle('active', mode==='falta');
+  document.getElementById('faltaOptions').classList.toggle('show', mode==='falta');
+  document.getElementById('questionsWrap').style.display = mode==='falta' ? 'none' : 'block';
+  document.getElementById('scorePreviewWrap').style.display = mode==='falta' && evalState.faltaTipo!=='justificada' ? (evalState.faltaTipo==='injustificada' ? 'flex' : 'none') : (mode==='asistio' ? 'flex' : 'none');
+  if(!skipRender) updateScorePreview();
+}
+
+function setFaltaTipo(tipo, skipUpdate){
+  evalState.faltaTipo = tipo;
+  document.getElementById('faltaJustBtn').classList.toggle('sel-j', tipo==='justificada');
+  document.getElementById('faltaInjustBtn').classList.toggle('sel-i', tipo==='injustificada');
+  document.getElementById('scorePreviewWrap').style.display = tipo==='injustificada' ? 'flex' : 'none';
+  if(!skipUpdate) updateScorePreview();
+}
+
+function renderQuestions(){
+  const wrap = document.getElementById('questionsWrap');
+  wrap.innerHTML = PREGUNTAS.map((q,i)=>`
+    <div class="q-block">
+      <div class="q-text"><span class="q-num">${i+1}</span>${q}</div>
+      <div class="q-options">
+        <button class="q-opt" id="qopt-${i}-1" onclick="setRespuesta(${i},1)">Cumplió<small>1.0 pt</small></button>
+        <button class="q-opt" id="qopt-${i}-0.5" onclick="setRespuesta(${i},0.5)">Parcial<small>0.5 pt</small></button>
+        <button class="q-opt" id="qopt-${i}-0" onclick="setRespuesta(${i},0)">No cumplió<small>0 pt</small></button>
+      </div>
+    </div>
+  `).join('');
+  evalState.respuestas.forEach((val,i)=>{ if(val!==null) highlightOpt(i,val); });
+}
+
+function setRespuesta(i, val){
+  evalState.respuestas[i] = val;
+  highlightOpt(i, val);
+  updateScorePreview();
+}
+
+function highlightOpt(i, val){
+  ['1','0.5','0'].forEach(v=>{
+    const el = document.getElementById(`qopt-${i}-${v}`);
+    if(el) el.classList.remove('sel-ok','sel-mid','sel-no');
+  });
+  const el = document.getElementById(`qopt-${i}-${val}`);
+  if(!el) return;
+  if(val===1) el.classList.add('sel-ok');
+  else if(val===0.5) el.classList.add('sel-mid');
+  else el.classList.add('sel-no');
+}
+
+function calcTotal(){
+  if(evalState.mode==='falta') return evalState.faltaTipo==='injustificada' ? 0 : null;
+  const answered = evalState.respuestas.filter(v=>v!==null);
+  if(answered.length===0) return 0;
+  return evalState.respuestas.reduce((s,v)=>s+(v||0),0);
+}
+
+function updateScorePreview(){
+  const total = calcTotal();
+  const wrap = document.getElementById('scorePreviewWrap');
+  if(evalState.mode==='asistio'){
+    wrap.style.display='flex';
+    document.getElementById('scorePreview').textContent = `${(total||0).toFixed(1)} / 10`;
+  } else if(evalState.faltaTipo==='injustificada'){
+    wrap.style.display='flex';
+    document.getElementById('scorePreview').textContent = `0 / 10`;
+  } else {
+    wrap.style.display='none';
+  }
+}
+
+async function saveEvaluation(){
+  if(!evalState) return;
+  const evals = getEvaluations();
+  const key = evalKey(evalState.personId, evalState.fecha);
+
+  if(evals[key]){
+    alert('Esta persona ya fue calificada el día de hoy. No es posible registrar una segunda calificación.');
+    closeEvalModal();
+    renderSupervisorList();
+    return;
+  }
+
+  let payload;
+  if(evalState.mode==='falta'){
+    if(!evalState.faltaTipo){
+      alert('Selecciona si la falta es justificada o sin justificar.');
+      return;
+    }
+    payload = {
+      personId: evalState.personId,
+      fecha: evalState.fecha,
+      tipo: `falta_${evalState.faltaTipo}`,
+      total: evalState.faltaTipo==='injustificada' ? 0 : null,
+      respuestas: null,
+      comentario: document.getElementById('q11text').value.trim(),
+      evaluadoPor: currentUser.id
+    };
+  } else {
+    const unanswered = evalState.respuestas.some(v=>v===null);
+    if(unanswered){
+      alert('Responde las 10 preguntas antes de guardar.');
+      return;
+    }
+    const total = evalState.respuestas.reduce((s,v)=>s+v,0);
+    payload = {
+      personId: evalState.personId,
+      fecha: evalState.fecha,
+      tipo: 'calificado',
+      total: total,
+      respuestas: [...evalState.respuestas],
+      comentario: document.getElementById('q11text').value.trim(),
+      evaluadoPor: currentUser.id
+    };
+  }
+
+  const saveBtn = document.getElementById('saveEvalBtn');
+  saveBtn.disabled = true; saveBtn.textContent = 'Guardando…';
+  try{
+    await apiSend('/evaluaciones', 'POST', payload);
+    evaluacionesCache[key] = {...payload, timestamp: Date.now()};
+    closeEvalModal();
+    renderSupervisorList();
+  } catch(err){
+    if(err.status === 409){
+      alert('Esta persona ya fue calificada el día de hoy (registrado desde otro dispositivo). No es posible registrar una segunda calificación.');
+      await refreshEvaluaciones();
+      closeEvalModal();
+      renderSupervisorList();
+    } else {
+      alert('No se pudo guardar. Verifica tu conexión a internet e intenta de nuevo.');
+    }
+  } finally {
+    saveBtn.disabled = false; saveBtn.textContent = 'Guardar calificación';
+  }
+}
+
+/* ============================================================
+   VISTA ADMINISTRADOR — MÓDULO DE REPORTES
+============================================================ */
+
+// Niveles de cumplimiento (sobre % de calificación promedio)
+const NIVELES = {
+  bien:     { min:95,  label:'Bien',     claseTag:'bien',     claseBar:'high' },
+  atencion: { min:80,  label:'Atención', claseTag:'atencion', claseBar:'mid'  },
+  critico:  { min:-1,  label:'Crítico',  claseTag:'critico',  claseBar:'low'  }
+};
+
+function nivelDe(pct){
+  if(pct===null || pct===undefined) return null;
+  if(pct>=95) return NIVELES.bien;
+  if(pct>=80) return NIVELES.atencion;
+  return NIVELES.critico;
+}
+
+/* ============================================================
+   KPI GLOBAL = % Calidad × % Cobertura / 100
+   Cobertura = slots cubiertos / slots esperados (persona-día laborable)
+     - slot cubierto: calificado O falta injustificada (registrada aunque sea 0)
+     - falta justificada: descuenta el slot del denominador
+   Regla de gate: si Cobertura < 85% → semáforo rojo automático
+   Semáforo (cuando Cobertura ≥ 85%): verde ≥90%, amarillo 75-89.9%, rojo <75%
+============================================================ */
+function computeKPIGlobal(people, desde, hasta){
+  const evals = getEvaluations();
+  const ids = new Set(people.map(p=>p.id));
+  const diasLaborables = countWeekdaysInclusive(desde, hasta);
+
+  // Calculamos por persona-día
+  let slotsEsperados = 0;
+  let slotsCubiertos = 0;
+  let sumaCalidad = 0;
+  let countCalidad = 0;
+
+  people.forEach(p=>{
+    for(let di=0; di<diasLaborables; di++){
+      // Iteramos cada día laborable del rango para calcular los slots
+      const fecha = nthWeekday(desde, di);
+      const key = evalKey(p.id, fecha);
+      const e = evals[key];
+      if(!e){
+        slotsEsperados++; // pendiente, no cubierto
+      } else if(e.tipo==='falta_justificada'){
+        // Falta justificada: descuenta el slot del denominador (no esperado)
+        // No suma a esperados ni a cubiertos
+      } else if(e.tipo==='falta_injustificada'){
+        slotsEsperados++;
+        slotsCubiertos++; // registrado (aunque calificación = 0)
+      } else if(e.tipo==='calificado'){
+        slotsEsperados++;
+        slotsCubiertos++;
+        sumaCalidad += e.total;
+        countCalidad++;
+      }
+    }
+  });
+
+  const pctCalidad = countCalidad>0 ? (sumaCalidad/countCalidad/10*100) : null;
+  const pctCobertura = slotsEsperados>0 ? (slotsCubiertos/slotsEsperados*100) : null;
+
+  let pctGlobal = null;
+  if(pctCalidad!==null && pctCobertura!==null){
+    pctGlobal = (pctCalidad * pctCobertura) / 100;
+  }
+
+  // Semáforo con regla de gate
+  function nivelGlobal(calidad, cobertura, global){
+    if(calidad===null || cobertura===null) return null;
+    if(cobertura < 85) return { ...NIVELES.critico, gateActivo:true };
+    if(global>=90) return { ...NIVELES.bien, gateActivo:false };
+    if(global>=75) return { ...NIVELES.atencion, gateActivo:false };
+    return { ...NIVELES.critico, gateActivo:false };
+  }
+
+  const nivel = nivelGlobal(pctCalidad, pctCobertura, pctGlobal);
+
+  // Tooltip: explica qué factor limita el resultado
+  function tooltipGlobal(calidad, cobertura, global, nivel){
+    if(!nivel) return 'Sin datos suficientes en el periodo.';
+    if(nivel.gateActivo)
+      return `⚠️ Cobertura de ${cobertura.toFixed(0)}% está por debajo del mínimo requerido de 85%. Hay ${(100-cobertura).toFixed(0)} puntos porcentuales de personal sin evaluar que están afectando el resultado global.`;
+    if(global>=90) return `✅ Ambos factores en rango óptimo: Calidad ${calidad.toFixed(0)}%, Cobertura ${cobertura.toFixed(0)}%.`;
+    const limitante = calidad<=cobertura
+      ? `La Calidad (${calidad.toFixed(0)}%) es el factor que más está limitando el índice global.`
+      : `La Cobertura (${cobertura.toFixed(0)}%) es el factor que más está limitando el índice global.`;
+    return `${limitante} Calidad: ${calidad.toFixed(0)}% · Cobertura: ${cobertura.toFixed(0)}%.`;
+  }
+
+  return {
+    pctCalidad, pctCobertura, pctGlobal, nivel,
+    tooltip: tooltipGlobal(pctCalidad, pctCobertura, pctGlobal, nivel),
+    slotsEsperados, slotsCubiertos, countCalidad
+  };
+}
+
+// Devuelve la fecha ISO del n-ésimo día laborable (0-indexed) a partir de 'desde'
+function nthWeekday(desde, n){
+  let d = new Date(desde+'T00:00:00');
+  let count = 0;
+  while(true){
+    const iso = d.toISOString().slice(0,10);
+    if(isWeekday(iso)){
+      if(count===n) return iso;
+      count++;
+    }
+    d.setDate(d.getDate()+1);
+  }
+}
+
+const CONTRAMEDIDAS_SUCURSAL = {
+  bien: "Mantener el estándar mediante reconocimiento al equipo y reforzamiento positivo en la junta semanal de almacén.",
+  atencion: "El Jefe de Almacén debe revisar con sus Líderes los reactivos con menor calificación en la sucursal y reforzar la capacitación de 5S en la próxima junta operativa.",
+  critico: "Escalamiento inmediato a Gerencia de Operaciones; plan de acción correctiva por escrito firmado por el Jefe de Almacén con fecha de seguimiento a 7 días naturales."
+};
+
+const CONTRAMEDIDAS_PERSONA = {
+  bien: "Reconocimiento individual; candidato a buenas prácticas a replicar con el resto del equipo.",
+  atencion: "Retroalimentación directa del supervisor señalando los reactivos específicos con menor puntaje; seguimiento en la siguiente evaluación.",
+  critico: "Amonestación conforme a política interna de almacén (GPA-CAD-PL-001); plan de mejora individual por escrito; en caso de reincidencia, escalar a Recursos Humanos."
+};
+
+let adminTab = 'reportes';
+let rbPeriodo = 'dia';      // dia | semana | mes | rango
+let rbAlcance = 'todas';    // todas | sucursal | persona
+
+function initAdmin(){
+  setAdminTab('reportes');
+}
+
+function setAdminTab(tab){
+  adminTab = tab;
+  document.querySelectorAll('#appAdmin .tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`#appAdmin .tab-btn[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('tabReportes').style.display = tab==='reportes' ? 'block' : 'none';
+  document.getElementById('tabSupervisores').style.display = tab==='supervisores' ? 'block' : 'none';
+  document.getElementById('tabUsuarios').style.display = tab==='usuarios' ? 'block' : 'none';
+  if(tab==='reportes') renderReportBuilder();
+  if(tab==='supervisores') renderSupervisoresPanel();
+  if(tab==='usuarios') renderAdminUsuarios();
+}
+
+// Toggle de tooltip en móvil (tap): abre/cierra el tooltip en tarjetas KPI.
+// En desktop, el hover CSS ya lo maneja; esto es solo para pantallas táctiles.
+function toggleKpiTooltip(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const isOpen = el.classList.contains('tooltip-open');
+  document.querySelectorAll('.kpi-card.tooltip-open').forEach(c=>c.classList.remove('tooltip-open'));
+  if(!isOpen) el.classList.add('tooltip-open');
+}
+
+// Llamado por el polling periódico: refresca solo el contenido de la pestaña
+// activa (sin reconstruir los selectores, para no perder lo que el Admin
+// tenía elegido) cuando llegan evaluaciones nuevas de otras sucursales.
+function refreshCurrentAdminView(){
+  if(adminTab==='reportes' && document.getElementById('rbSucursalSel')) renderReportPreview();
+  if(adminTab==='supervisores' && document.getElementById('svSucursalSel')) renderSupervisoresList();
+}
+
+const SUCURSALES_BASE = ['Guadalajara','Monterrey','Ciudad de México','Puerto Vallarta','Los Cabos','Cancun','CEDIS'];
+
+function getSucursales(){
+  const desdePersonal = PERSONAL.filter(p=>p.role==='operativo').map(p=>p.sucursal);
+  return [...new Set([...SUCURSALES_BASE, ...desdePersonal])];
+}
+
+function pctClass(pct){
+  const n = nivelDe(pct);
+  return n ? n.claseBar : '';
+}
+
+/* ---------- Resolución de rango de fechas ---------- */
+function isoAddDays(iso, days){
+  const d = new Date(iso+'T00:00:00');
+  d.setDate(d.getDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function startOfWeekISO(iso){
+  const d = new Date(iso+'T00:00:00');
+  const day = d.getDay(); // 0=domingo
+  const diff = (day===0 ? 6 : day-1); // lunes como inicio
+  return isoAddDays(iso, -diff);
+}
+function startOfMonthISO(iso){
+  const [y,m] = iso.split('-');
+  return `${y}-${m}-01`;
+}
+function endOfMonthISO(iso){
+  const [y,m] = iso.split('-');
+  const d = new Date(parseInt(y), parseInt(m), 0);
+  return d.toISOString().slice(0,10);
+}
+
+function resolveDateRange(){
+  const hoy = todayISO();
+
+  // Aplica el corte: si 'hasta' cae en el futuro, se recorta a hoy.
+  // Así seleccionar "julio completo" calcula solo sobre los días ya transcurridos.
+  function cortarAHoy(desde, hasta){
+    const hastaEfectivo = hasta > hoy ? hoy : hasta;
+    return { desde, hasta: hastaEfectivo, hastaNominal: hasta, recortado: hasta > hoy };
+  }
+
+  if(rbPeriodo==='dia'){
+    const f = document.getElementById('rbFechaDia').value || hoy;
+    return cortarAHoy(f, f);
+  }
+  if(rbPeriodo==='semana'){
+    const f = document.getElementById('rbFechaSemana').value || hoy;
+    const desde = startOfWeekISO(f);
+    const hasta = isoAddDays(desde, 6);
+    return cortarAHoy(desde, hasta);
+  }
+  if(rbPeriodo==='mes'){
+    const f = document.getElementById('rbFechaMes').value;
+    const base = f ? f+'-01' : hoy;
+    return cortarAHoy(startOfMonthISO(base), endOfMonthISO(base));
+  }
+  if(rbPeriodo==='rango'){
+    const desde = document.getElementById('rbDesde').value || hoy;
+    const hasta = document.getElementById('rbHasta').value || hoy;
+    return cortarAHoy(desde, hasta);
+  }
+  return cortarAHoy(hoy, hoy);
+}
+
+function dateInRange(fecha, desde, hasta){
+  return fecha>=desde && fecha<=hasta;
+}
+
+/* ---------- Cálculo de datos para un conjunto de personas y rango ---------- */
+// Lunes a viernes = día laborable. Sábado y domingo se excluyen de todos los
+// KPI de cumplimiento; si hay una evaluación en sábado, se conserva visible
+// en el detalle pero no se suma a ningún promedio ni porcentaje.
+function isWeekday(fechaISO){
+  const d = new Date(fechaISO+'T00:00:00');
+  const dia = d.getDay(); // 0=domingo, 6=sábado
+  return dia>=1 && dia<=5;
+}
+
+function computeRangeStatsForPeople(personIds, desde, hasta){
+  const evals = getEvaluations();
+  const porPersona = {}; // personId -> {dias:[{fecha,total,estado,comentario,cuentaParaKPI}], suma, count, faltasJ, faltasI}
+  personIds.forEach(id=>{ porPersona[id] = {dias:[], suma:0, count:0, faltasJ:0, faltasI:0}; });
+
+  Object.values(evals).forEach(e=>{
+    if(!porPersona[e.personId]) return;
+    if(!dateInRange(e.fecha, desde, hasta)) return;
+    const bucket = porPersona[e.personId];
+    const esLaborable = isWeekday(e.fecha);
+    if(e.tipo==='calificado'){
+      bucket.dias.push({fecha:e.fecha, total:e.total, estado:'calificado', comentario:e.comentario, cuentaParaKPI:esLaborable});
+      if(esLaborable){ bucket.suma += e.total; bucket.count++; }
+    } else if(e.tipo==='falta_injustificada'){
+      bucket.dias.push({fecha:e.fecha, total:0, estado:'falta_injustificada', comentario:e.comentario, cuentaParaKPI:esLaborable});
+      if(esLaborable){ bucket.suma += 0; bucket.count++; bucket.faltasI++; }
+    } else if(e.tipo==='falta_justificada'){
+      bucket.dias.push({fecha:e.fecha, total:null, estado:'falta_justificada', comentario:e.comentario, cuentaParaKPI:esLaborable});
+      if(esLaborable){ bucket.faltasJ++; }
+    }
+  });
+
+  Object.values(porPersona).forEach(b=> b.dias.sort((a,b2)=>a.fecha.localeCompare(b2.fecha)));
+  return porPersona;
+}
+
+function aggregatePersonStats(bucket){
+  const pct = bucket.count>0 ? (bucket.suma/bucket.count/10*100) : null;
+  const promedio = bucket.count>0 ? (bucket.suma/bucket.count) : null;
+  return { pct, promedio, count:bucket.count, faltasJ:bucket.faltasJ, faltasI:bucket.faltasI, dias:bucket.dias };
+}
+
+/* ---------- UI: constructor de reportes ---------- */
+function renderReportBuilder(){
+  const sucursales = getSucursales();
+  const operativos = PERSONAL.filter(p=>p.role==='operativo').sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const hoy = todayISO();
+  const hoyMes = hoy.slice(0,7);
+
+  document.getElementById('tabReportes').innerHTML = `
+    <div class="report-builder">
+      <div class="rb-row">
+        <div class="rb-field" style="flex:0;min-width:auto;">
+          <label>Periodo</label>
+          <div class="period-toggle">
+            <button id="ptDia" class="active" onclick="setRbPeriodo('dia')">Día</button>
+            <button id="ptSemana" onclick="setRbPeriodo('semana')">Semana</button>
+            <button id="ptMes" onclick="setRbPeriodo('mes')">Mes</button>
+            <button id="ptRango" onclick="setRbPeriodo('rango')">Rango libre</button>
+          </div>
+        </div>
+        <div class="rb-field" id="rbFechaFieldDia">
+          <label>Fecha</label>
+          <input type="date" id="rbFechaDia" value="${hoy}" onchange="renderReportPreview()">
+        </div>
+        <div class="rb-field" id="rbFechaFieldSemana" style="display:none;">
+          <label>Semana que incluye</label>
+          <input type="date" id="rbFechaSemana" value="${hoy}" onchange="renderReportPreview()">
+        </div>
+        <div class="rb-field" id="rbFechaFieldMes" style="display:none;">
+          <label>Mes</label>
+          <input type="month" id="rbFechaMes" value="${hoyMes}" onchange="renderReportPreview()">
+        </div>
+        <div class="rb-field" id="rbFechaFieldRango" style="display:none;">
+          <label>Desde</label>
+          <input type="date" id="rbDesde" value="${hoy}" onchange="renderReportPreview()">
+        </div>
+        <div class="rb-field" id="rbFechaFieldRangoHasta" style="display:none;">
+          <label>Hasta</label>
+          <input type="date" id="rbHasta" value="${hoy}" onchange="renderReportPreview()">
+        </div>
+      </div>
+
+      <div class="rb-row">
+        <div class="rb-field" style="flex:0;min-width:auto;">
+          <label>Alcance</label>
+          <div class="scope-toggle">
+            <button id="scTodas" class="active" onclick="setRbAlcance('todas')">Todas las sucursales</button>
+            <button id="scSucursal" onclick="setRbAlcance('sucursal')">Una sucursal</button>
+            <button id="scPersona" onclick="setRbAlcance('persona')">Una persona</button>
+          </div>
+        </div>
+        <div class="rb-field" id="rbSucursalField" style="display:none;">
+          <label>Sucursal</label>
+          <select id="rbSucursalSel" onchange="renderReportPreview()">
+            ${sucursales.map(s=>`<option value="${s}">${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="rb-field" id="rbPersonaField" style="display:none;">
+          <label>Persona</label>
+          <select id="rbPersonaSel" onchange="renderReportPreview()">
+            ${operativos.map(p=>`<option value="${p.id}">${p.nombre} — ${p.sucursal}${p.activo===false?' (Inactivo)':''}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+
+      <div class="rb-actions">
+        <button class="pdf-btn" onclick="generatePDF()">📄 Generar PDF</button>
+      </div>
+    </div>
+
+    <div id="reportPreview"></div>
+  `;
+  renderReportPreview();
+}
+
+function setRbPeriodo(p){
+  rbPeriodo = p;
+  ['Dia','Semana','Mes','Rango'].forEach(k=>{
+    document.getElementById('pt'+k).classList.toggle('active', k.toLowerCase()===p);
+  });
+  document.getElementById('rbFechaFieldDia').style.display = p==='dia' ? 'flex':'none';
+  document.getElementById('rbFechaFieldSemana').style.display = p==='semana' ? 'flex':'none';
+  document.getElementById('rbFechaFieldMes').style.display = p==='mes' ? 'flex':'none';
+  document.getElementById('rbFechaFieldRango').style.display = p==='rango' ? 'flex':'none';
+  document.getElementById('rbFechaFieldRangoHasta').style.display = p==='rango' ? 'flex':'none';
+  renderReportPreview();
+}
+
+function setRbAlcance(a){
+  rbAlcance = a;
+  document.getElementById('scTodas').classList.toggle('active', a==='todas');
+  document.getElementById('scSucursal').classList.toggle('active', a==='sucursal');
+  document.getElementById('scPersona').classList.toggle('active', a==='persona');
+  document.getElementById('rbSucursalField').style.display = a==='sucursal' ? 'flex':'none';
+  document.getElementById('rbPersonaField').style.display = a==='persona' ? 'flex':'none';
+  renderReportPreview();
+}
+
+function currentScopePeople(){
+  if(rbAlcance==='persona'){
+    const id = parseInt(document.getElementById('rbPersonaSel').value);
+    return PERSONAL.filter(p=>p.id===id);
+  }
+  if(rbAlcance==='sucursal'){
+    const suc = document.getElementById('rbSucursalSel').value;
+    return getOperativosBySucursal(suc);
+  }
+  return PERSONAL.filter(p=>p.role==='operativo');
+}
+
+function renderReportPreview(){
+  const {desde, hasta, hastaNominal, recortado} = resolveDateRange();
+  const people = currentScopePeople();
+  const summary = computeGeneralSummary(people, desde, hasta);
+
+  // ── Los 3 KPI ─────────────────────────────────────────────────────────────
+  // KPI de Orden y Limpieza (Calidad): promedio de calificaciones
+  const porPersona = computeRangeStatsForPeople(people.map(p=>p.id), desde, hasta);
+  let sumaQ=0, countQ=0;
+  people.forEach(p=>{ sumaQ+=porPersona[p.id].suma; countQ+=porPersona[p.id].count; });
+  const pctCalidad = countQ>0 ? (sumaQ/countQ/10*100) : null;
+  const nivelCalidad = nivelDe(pctCalidad);
+
+  // KPI de Cumplimiento
+  const calif = computeCalifComplianceForPeople(people, desde, hasta);
+  const nivelCalif = nivelDe(calif.pct);
+
+  // KPI Global
+  const kpiG = computeKPIGlobal(people, desde, hasta);
+  const nivelG = kpiG.nivel;
+
+  function kpiSemaforo(nivel){
+    if(!nivel) return '⚪';
+    return nivel.claseTag==='bien'?'🟢':nivel.claseTag==='atencion'?'🟡':'🔴';
+  }
+  function kpiColor(nivel){
+    if(!nivel) return 'var(--gris-400)';
+    return nivel.claseTag==='bien'?'var(--verde)':nivel.claseTag==='atencion'?'var(--amarillo)':'var(--rojo)';
+  }
+
+  const kpiFila = `
+    <div class="kpi-row" style="margin-bottom:18px;">
+      <!-- KPI Orden y Limpieza -->
+      <div class="kpi-card" id="kpi_calidad_top" onclick="toggleKpiTooltip('kpi_calidad_top')">
+        <div class="kpi-label">KPI Orden y Limpieza</div>
+        <div class="kpi-value" style="color:${kpiColor(nivelCalidad)}">${pctCalidad!==null?pctCalidad.toFixed(0)+'%':'—'}</div>
+        <div class="kpi-tag ${nivelCalidad?nivelCalidad.claseTag:'sin-datos'}">${kpiSemaforo(nivelCalidad)} ${nivelCalidad?nivelCalidad.label:'Sin datos'}</div>
+        <div class="kpi-tooltip">Promedio de calificaciones de las 10 preguntas OLA sobre días laborables del periodo. ${pctCalidad!==null?'Basado en '+countQ+' evaluación(es).':''}</div>
+      </div>
+      <!-- KPI de Cumplimiento -->
+      <div class="kpi-card" id="kpi_cumpl_top" onclick="toggleKpiTooltip('kpi_cumpl_top')">
+        <div class="kpi-label">KPI de Cumplimiento</div>
+        <div class="kpi-value" style="color:${kpiColor(nivelCalif)}">${calif.pct!==null?calif.pct.toFixed(0)+'%':'—'}</div>
+        <div class="kpi-tag ${nivelCalif?nivelCalif.claseTag:'sin-datos'}">${kpiSemaforo(nivelCalif)} ${nivelCalif?nivelCalif.label:'Sin datos'}</div>
+        <div class="kpi-tooltip">${calif.pct!==null?`${calif.registrados} de ${calif.esperados} slots persona-día laborable cubiertos (calificaciones + faltas registradas).`:'Sin datos suficientes en el periodo.'}</div>
+      </div>
+      <!-- KPI Global -->
+      <div class="kpi-card" id="kpi_global_top" onclick="toggleKpiTooltip('kpi_global_top')">
+        <div class="kpi-label">KPI Global</div>
+        <div class="kpi-value" style="color:${kpiColor(nivelG)}">${kpiG.pctGlobal!==null?kpiG.pctGlobal.toFixed(0)+'%':'—'}</div>
+        <div class="kpi-tag ${nivelG?nivelG.claseTag:'sin-datos'}">${kpiSemaforo(nivelG)} ${nivelG?nivelG.label:'Sin datos'}</div>
+        <div class="kpi-tooltip">${kpiG.tooltip}</div>
+      </div>
+    </div>`;
+
+  const html = buildReportHTML(people, desde, hasta, rbAlcance);
+  document.getElementById('reportPreview').innerHTML = `
+    ${kpiFila}
+    <div class="summary-row" style="margin-bottom:18px;">
+      <div class="stat"><div class="num">${summary.equipoTotal}</div><div class="lbl">Equipo total</div></div>
+      <div class="stat"><div class="num" style="color:var(--verde)">${summary.calificados}</div><div class="lbl">Calificados</div></div>
+      <div class="stat"><div class="num" style="color:var(--gris-600)">${summary.pendientes}</div><div class="lbl">Pendientes</div></div>
+      <div class="stat"><div class="num" style="color:var(--rojo)">${summary.faltas}</div><div class="lbl">Faltas</div></div>
+    </div>
+    <div class="preview-note">
+      🔎 Vista previa · ${fmtFechaCorta(desde)} al ${fmtFechaCorta(hasta)}
+      ${recortado ? `<span style="margin-left:8px;color:var(--amarillo);font-weight:700;">⚠️ Periodo recortado al día de hoy — el mes completo cierra el ${fmtFechaCorta(hastaNominal)}</span>` : ''}
+    </div>
+    ${html}
+  `;
+}
+
+/* ---------- Resumen general dinámico (Equipo total / Calificados / Pendientes / Faltas) ----------
+   "Pendientes" se calcula sobre días-persona esperados en el periodo (un registro por persona por día)
+   menos los días-persona ya registrados (calificado, falta justificada o injustificada). */
+// Cuenta solo días laborables (lunes a viernes) en el rango inclusivo.
+// Usado como base de "días esperados" para Pendientes y los KPI.
+function countWeekdaysInclusive(desde, hasta){
+  let count=0;
+  let d = new Date(desde+'T00:00:00');
+  const end = new Date(hasta+'T00:00:00');
+  while(d<=end){
+    if(isWeekday(d.toISOString().slice(0,10))) count++;
+    d.setDate(d.getDate()+1);
+  }
+  return count;
+}
+
+function computeGeneralSummary(people, desde, hasta){
+  const evals = getEvaluations();
+  const ids = new Set(people.map(p=>p.id));
+  const diasEnPeriodo = countWeekdaysInclusive(desde, hasta);
+  const diasPersonaEsperados = people.length * diasEnPeriodo;
+
+  let calificados=0, faltasJ=0, faltasI=0;
+  Object.values(evals).forEach(e=>{
+    if(!ids.has(e.personId)) return;
+    if(!dateInRange(e.fecha, desde, hasta)) return;
+    if(!isWeekday(e.fecha)) return; // sábado/domingo: se ignora para todos los KPI
+    if(e.tipo==='calificado') calificados++;
+    else if(e.tipo==='falta_injustificada') faltasI++;
+    else if(e.tipo==='falta_justificada') faltasJ++;
+  });
+
+  const registrados = calificados + faltasJ + faltasI;
+  const pendientes = Math.max(diasPersonaEsperados - registrados, 0);
+
+  return {
+    equipoTotal: people.length,
+    calificados,
+    pendientes,
+    faltas: faltasJ + faltasI
+  };
+}
+
+/* ---------- % de Cumplimiento de Calificaciones (supervisores calificando a tiempo) ----------
+   = (personas calificadas + faltas registradas) / equipo total esperado en el periodo
+   Niveles: >=95 Bien, 80-94.9 Atención, <80 Crítico (mismos cortes que Orden y Limpieza) */
+function computeCalifComplianceForPeople(people, desde, hasta){
+  const summary = computeGeneralSummary(people, desde, hasta);
+  const diasEnPeriodo = countWeekdaysInclusive(desde, hasta);
+  const esperados = summary.equipoTotal * diasEnPeriodo;
+  const registrados = summary.calificados + summary.faltas;
+  const pct = esperados>0 ? (registrados/esperados*100) : null;
+  return { pct, registrados, esperados, ...summary };
+}
+
+/* ---------- Construcción de HTML de reporte (reutilizado en preview y como base del PDF) ---------- */
+function buildReportHTML(people, desde, hasta, alcance){
+  if(alcance==='persona'){
+    return buildPersonReportHTML(people[0], desde, hasta);
+  }
+  if(alcance==='sucursal'){
+    return buildSucursalReportHTML(people[0].sucursal, desde, hasta);
+  }
+  // todas las sucursales
+  const sucursales = getSucursales();
+  return sucursales.map(s=>buildSucursalReportHTML(s, desde, hasta)).join('');
+}
+
+function buildSucursalReportHTML(sucursal, desde, hasta){
+  const team = getOperativosBySucursal(sucursal);
+  const ids = team.map(p=>p.id);
+  const porPersona = computeRangeStatsForPeople(ids, desde, hasta);
+
+  let sumaGlobal=0, countGlobal=0, faltasJ=0, faltasI=0;
+  const filas = team.map(p=>{
+    const agg = aggregatePersonStats(porPersona[p.id]);
+    sumaGlobal += porPersona[p.id].suma; countGlobal += porPersona[p.id].count;
+    faltasJ += agg.faltasJ; faltasI += agg.faltasI;
+    return {persona:p, ...agg};
+  });
+
+  // KPI de Orden y Limpieza (Calidad)
+  const pctCalidad = countGlobal>0 ? (sumaGlobal/countGlobal/10*100) : null;
+  const nivelCalidad = nivelDe(pctCalidad);
+
+  // KPI de Cumplimiento
+  const calif = computeCalifComplianceForPeople(team, desde, hasta);
+  const nivelCalif = nivelDe(calif.pct);
+
+  // KPI Global
+  const kpiG = computeKPIGlobal(team, desde, hasta);
+  const nivelG = kpiG.nivel;
+
+  function kpiTagHtml(nivel, valor, tooltip, id){
+    const cls = nivel ? nivel.claseTag : 'sin-datos';
+    const semaforo = nivel ? (cls==='bien' ? '🟢' : cls==='atencion' ? '🟡' : '🔴') : '⚪';
+    const tooltipHtml = tooltip ? `<div class="kpi-tooltip">${tooltip}</div>` : '';
+    return `<div class="kpi-card" id="${id}" onclick="toggleKpiTooltip('${id}')">
+      <div class="kpi-label">${{calidad:'KPI Orden y Limpieza', cumpl:'KPI de Cumplimiento', global:'KPI Global'}[id.split('_')[0]]}</div>
+      <div class="kpi-value">${valor!==null?valor.toFixed(0)+'%':'—'}</div>
+      <div class="kpi-tag ${cls}">${semaforo} ${nivel?nivel.label:'Sin datos'}</div>
+      ${tooltipHtml}
+    </div>`;
+  }
+
+  const tooltipCalidad = pctCalidad!==null
+    ? `Promedio de calificaciones de las 10 preguntas de OLA sobre días laborables en el periodo seleccionado.`
+    : 'Sin evaluaciones registradas en el periodo.';
+  const tooltipCumpl = calif.pct!==null
+    ? `${calif.registrados} de ${calif.esperados} slots persona-día laborable cubiertos (calificaciones + faltas registradas).`
+    : 'Sin datos suficientes.';
+
+  const sucId = sucursal.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'');
+  const kpiRow = `
+    <div class="kpi-row">
+      ${kpiTagHtml(nivelCalidad, pctCalidad, tooltipCalidad, `calidad_${sucId}`)}
+      ${kpiTagHtml(nivelCalif,   calif.pct,  tooltipCumpl,   `cumpl_${sucId}`)}
+      ${kpiTagHtml(nivelG,       kpiG.pctGlobal, kpiG.tooltip, `global_${sucId}`)}
+    </div>`;
+
+  // Acción recomendada: prioriza el semáforo más crítico de los 3
+  const nivelAccion = [nivelCalidad, nivelCalif, nivelG]
+    .filter(Boolean)
+    .sort((a,b)=> (a.claseTag==='critico'?0:a.claseTag==='atencion'?1:2) - (b.claseTag==='critico'?0:b.claseTag==='atencion'?1:2))[0];
+
+  return `
+    <div class="suc-card">
+      <div class="suc-head">
+        <span class="name">${sucursal}</span>
+        <span class="pct ${nivelG?nivelG.claseBar:nivelCalidad?nivelCalidad.claseBar:''}">${kpiG.pctGlobal!==null?kpiG.pctGlobal.toFixed(0)+'%':pctCalidad!==null?pctCalidad.toFixed(0)+'%':'Sin datos'}</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill ${nivelG?nivelG.claseBar:nivelCalidad?nivelCalidad.claseBar:''}" style="width:${kpiG.pctGlobal!==null?kpiG.pctGlobal:pctCalidad!==null?pctCalidad:0}%"></div></div>
+      <div class="suc-meta" style="margin-bottom:12px;">
+        <span><b>${team.length}</b> personas en equipo</span>
+        <span><b>${countGlobal}</b> calificaciones en el periodo</span>
+        <span><b>${faltasJ}</b> faltas justificadas</span>
+        <span><b>${faltasI}</b> faltas sin justificar</span>
+      </div>
+      ${kpiRow}
+      ${nivelAccion ? `<div class="card" style="box-shadow:none;border:1px solid var(--gris-200);margin-bottom:10px;">
+        <b style="font-size:12.5px;color:var(--gris-600);">Acción recomendada:</b>
+        <p style="margin:4px 0 0;font-size:13px;">${CONTRAMEDIDAS_SUCURSAL[nivelAccion.claseTag]}</p>
+      </div>` : ''}
+      <div class="table-wrap">
+        <table class="rep-table">
+          <thead><tr><th>Nombre</th><th>Puesto</th><th>Promedio</th><th># Calif.</th><th>Faltas J.</th><th>Faltas I.</th></tr></thead>
+          <tbody>
+            ${filas.map(f=>`
+              <tr>
+                <td>${f.persona.nombre}</td>
+                <td>${f.persona.puesto}</td>
+                <td>${f.promedio!==null?f.promedio.toFixed(1):'—'}</td>
+                <td>${f.count}</td>
+                <td>${f.faltasJ}</td>
+                <td>${f.faltasI}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function buildPersonReportHTML(persona, desde, hasta){
+  const porPersona = computeRangeStatsForPeople([persona.id], desde, hasta);
+  const agg = aggregatePersonStats(porPersona[persona.id]);
+  const nivel = nivelDe(agg.pct);
+
+  return `
+    <div class="suc-card">
+      <div class="suc-head">
+        <span class="name">${persona.nombre} <small style="font-weight:600;color:var(--gris-600);">· ${persona.puesto} · ${persona.sucursal}</small></span>
+        <span class="pct ${nivel?nivel.claseBar:''}">${agg.pct!==null?agg.pct.toFixed(0)+'%':'Sin datos'}</span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill ${nivel?nivel.claseBar:''}" style="width:${agg.pct!==null?agg.pct:0}%"></div></div>
+      <div class="suc-meta" style="margin-bottom:10px;">
+        <span><b>${agg.count}</b> calificaciones en el periodo</span>
+        <span><b>${agg.promedio!==null?agg.promedio.toFixed(1):'—'}</b> promedio /10</span>
+        <span><b>${agg.faltasJ}</b> faltas justificadas</span>
+        <span><b>${agg.faltasI}</b> faltas sin justificar</span>
+        ${nivel?`<span class="compliance-tag ${nivel.claseTag}">KPI de Orden y Limpieza: ${nivel.label}</span>`:''}
+      </div>
+      ${nivel ? `<div class="card" style="box-shadow:none;border:1px solid var(--gris-200);margin-bottom:10px;">
+        <b style="font-size:12.5px;color:var(--gris-600);">Acción recomendada:</b>
+        <p style="margin:4px 0 0;font-size:13px;">${CONTRAMEDIDAS_PERSONA[nivel.claseTag]}</p>
+      </div>` : ''}
+      <div class="table-wrap">
+        <table class="rep-table">
+          <thead><tr><th>Fecha</th><th>Estado</th><th>Calificación</th><th>Comentario</th></tr></thead>
+          <tbody>
+            ${agg.dias.length ? agg.dias.map(d=>`
+              <tr>
+                <td>${fmtFechaCorta(d.fecha)}</td>
+                <td>${estadoLabel(d.estado)}</td>
+                <td>${d.total!==null?d.total.toFixed(1):'—'}</td>
+                <td>${d.comentario||'—'}</td>
+              </tr>
+            `).join('') : `<tr><td colspan="4" style="text-align:center;color:var(--gris-400);">Sin registros en el periodo</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function estadoLabel(estado){
+  switch(estado){
+    case 'pendiente': return '<span class="badge pendiente">Pendiente</span>';
+    case 'falta_justificada': return '<span class="badge falta-j">Falta justificada</span>';
+    case 'falta_injustificada': return '<span class="badge falta-i">Falta sin justificar</span>';
+    case 'calificado': return '<span class="badge calificado">Calificado</span>';
+  }
+  return estado;
+}
+
+/* ---------- Generación de PDF (jsPDF + autotable) ---------- */
+function generatePDF(){
+  if(typeof window.jspdf === 'undefined'){
+    alert('No se pudo cargar el generador de PDF. Verifica tu conexión a internet e intenta de nuevo.');
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:'pt', format:'letter'});
+  const {desde, hasta, hastaNominal, recortado} = resolveDateRange();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let y = 50;
+
+  function header(){
+    doc.setFillColor(11,37,64);
+    doc.rect(0,0,pageWidth,70,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(16); doc.setFont(undefined,'bold');
+    doc.text('Reporte de Orden, Limpieza y Acomodo', 40, 30);
+    doc.setFontSize(10); doc.setFont(undefined,'normal');
+    const periodoTexto = recortado
+      ? `GPA · Periodo: ${fmtFechaCorta(desde)} al ${fmtFechaCorta(hasta)} (datos al día — periodo nominal al ${fmtFechaCorta(hastaNominal)})`
+      : `GPA · Periodo: ${fmtFechaCorta(desde)} al ${fmtFechaCorta(hasta)}`;
+    doc.text(periodoTexto, 40, 48);
+    doc.setTextColor(0,0,0);
+    y = 90;
+  }
+  header();
+
+  function checkPageBreak(extra){
+    if(y+extra > 740){ doc.addPage(); header(); }
+  }
+
+  function nivelColor(claseTag){
+    if(claseTag==='bien') return [31,157,85];
+    if(claseTag==='atencion') return [217,163,7];
+    return [214,64,63];
+  }
+
+  function drawNivelBlock(titulo, subtitulo, agg, pct, nivel, contramedida, califInfo, kpiGInfo){
+    checkPageBreak(110);
+    doc.setFontSize(12); doc.setFont(undefined,'bold');
+    doc.text(titulo, 40, y);
+    y += 14;
+    if(subtitulo){
+      doc.setFontSize(9.5); doc.setFont(undefined,'normal'); doc.setTextColor(90,98,110);
+      doc.text(subtitulo, 40, y);
+      doc.setTextColor(0,0,0);
+      y += 14;
+    }
+    // Badge KPI Orden y Limpieza
+    if(nivel){
+      const c = nivelColor(nivel.claseTag);
+      doc.setFillColor(c[0],c[1],c[2]);
+      doc.roundedRect(40, y, 145, 20, 4, 4, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(9.5); doc.setFont(undefined,'bold');
+      doc.text(`KPI O&L: ${pct!==null?pct.toFixed(0)+'%':'S/D'} · ${nivel.label}`, 45, y+13);
+      doc.setTextColor(0,0,0);
+    }
+    // Badge KPI de Cumplimiento
+    if(califInfo && califInfo.nivel){
+      const c2 = nivelColor(califInfo.nivel.claseTag);
+      doc.setFillColor(c2[0],c2[1],c2[2]);
+      doc.roundedRect(193, y, 145, 20, 4, 4, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(9.5); doc.setFont(undefined,'bold');
+      doc.text(`KPI Cumplim.: ${califInfo.pct!==null?califInfo.pct.toFixed(0)+'%':'S/D'} · ${califInfo.nivel.label}`, 198, y+13);
+      doc.setTextColor(0,0,0);
+    }
+    // Badge KPI Global
+    if(kpiGInfo && kpiGInfo.nivel){
+      const c3 = nivelColor(kpiGInfo.nivel.claseTag);
+      doc.setFillColor(c3[0],c3[1],c3[2]);
+      doc.roundedRect(346, y, 145, 20, 4, 4, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(9.5); doc.setFont(undefined,'bold');
+      doc.text(`KPI Global: ${kpiGInfo.pctGlobal!==null?kpiGInfo.pctGlobal.toFixed(0)+'%':'S/D'} · ${kpiGInfo.nivel.label}`, 351, y+13);
+      doc.setTextColor(0,0,0);
+    }
+    y += 32;
+    // Tooltip del KPI Global como nota en el PDF (sin emojis — jsPDF no los soporta)
+    if(kpiGInfo && kpiGInfo.tooltip){
+      const tooltipLimpio = kpiGInfo.tooltip
+        .replace(/[⚠️✅🔴🟡🟢ℹ️·•]/gu, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+      if(tooltipLimpio){
+        doc.setFontSize(8); doc.setFont(undefined,'italic'); doc.setTextColor(90,98,110);
+        const splitTooltip = doc.splitTextToSize('Nota KPI Global: ' + tooltipLimpio, pageWidth-80);
+        doc.text(splitTooltip, 40, y);
+        doc.setTextColor(0,0,0); doc.setFont(undefined,'normal');
+        y += splitTooltip.length*9 + 4;
+      }
+    }
+    if(contramedida){
+      doc.setFontSize(9); doc.setFont(undefined,'bold');
+      doc.text('Acción recomendada:', 40, y); y+=12;
+      doc.setFont(undefined,'normal');
+      const split = doc.splitTextToSize(contramedida, pageWidth-80);
+      doc.text(split, 40, y);
+      y += split.length*11 + 6;
+    }
+  }
+
+  if(rbAlcance==='persona'){
+    const p = currentScopePeople()[0];
+    const porPersona = computeRangeStatsForPeople([p.id], desde, hasta);
+    const agg = aggregatePersonStats(porPersona[p.id]);
+    const nivel = nivelDe(agg.pct);
+    const califP = computeCalifComplianceForPeople([p], desde, hasta);
+    const califInfoP = { pct: califP.pct, nivel: nivelDe(califP.pct) };
+    // KPI Global para persona individual (calidad = su promedio, cobertura = si fue evaluada)
+    const kpiGP = computeKPIGlobal([p], desde, hasta);
+    drawNivelBlock(p.nombre, `${p.puesto} · ${p.sucursal}`, agg, agg.pct, nivel, nivel?CONTRAMEDIDAS_PERSONA[nivel.claseTag]:'Sin datos suficientes en el periodo seleccionado.', califInfoP, kpiGP);
+
+    checkPageBreak(40);
+    doc.autoTable({
+      startY:y,
+      head:[['Fecha','Estado','Calificación','Comentario']],
+      body: agg.dias.length ? agg.dias.map(d=>[
+        fmtFechaCorta(d.fecha),
+        d.estado==='falta_justificada'?'Falta justificada':d.estado==='falta_injustificada'?'Falta sin justificar':'Calificado',
+        d.total!==null?d.total.toFixed(1):'—',
+        d.comentario||'—'
+      ]) : [['—','Sin registros en el periodo','—','—']],
+      theme:'striped',
+      headStyles:{fillColor:[15,50,88], fontSize:9},
+      bodyStyles:{fontSize:8.5},
+      margin:{left:40,right:40}
+    });
+    y = doc.lastAutoTable.finalY + 24;
+
+    checkPageBreak(20);
+    doc.setFontSize(9); doc.setFont(undefined,'bold');
+    doc.text(`Promedio del periodo: ${agg.promedio!==null?agg.promedio.toFixed(1):'—'} / 10  ·  Faltas justificadas: ${agg.faltasJ}  ·  Faltas sin justificar: ${agg.faltasI}`, 40, y);
+
+  } else {
+    const sucursales = rbAlcance==='sucursal' ? [document.getElementById('rbSucursalSel').value] : getSucursales();
+    sucursales.forEach((suc, idx)=>{
+      if(idx>0) checkPageBreak(120);
+      const team = getOperativosBySucursal(suc);
+      const ids = team.map(p=>p.id);
+      const porPersona = computeRangeStatsForPeople(ids, desde, hasta);
+      let suma=0,count=0,faltasJ=0,faltasI=0;
+      const filas = team.map(p=>{
+        const agg = aggregatePersonStats(porPersona[p.id]);
+        suma+=porPersona[p.id].suma; count+=porPersona[p.id].count;
+        faltasJ+=agg.faltasJ; faltasI+=agg.faltasI;
+        return [p.nombre, p.puesto, agg.promedio!==null?agg.promedio.toFixed(1):'—', String(agg.count), String(agg.faltasJ), String(agg.faltasI)];
+      });
+      const pct = count>0 ? (suma/count/10*100) : null;
+      const nivel = nivelDe(pct);
+      const califS = computeCalifComplianceForPeople(team, desde, hasta);
+      const califInfoS = { pct: califS.pct, nivel: nivelDe(califS.pct) };
+      const kpiGS = computeKPIGlobal(team, desde, hasta);
+
+      drawNivelBlock(`Sucursal ${suc}`, `${team.length} personas en equipo · ${count} calificaciones en el periodo`, null, pct, nivel, nivel?CONTRAMEDIDAS_SUCURSAL[nivel.claseTag]:'Sin datos suficientes en el periodo seleccionado.', califInfoS, kpiGS);
+
+      checkPageBreak(40);
+      doc.autoTable({
+        startY:y,
+        head:[['Nombre','Puesto','Promedio','# Calif.','Faltas J.','Faltas I.']],
+        body: filas,
+        theme:'striped',
+        headStyles:{fillColor:[15,50,88], fontSize:9},
+        bodyStyles:{fontSize:8.5},
+        margin:{left:40,right:40}
+      });
+      y = doc.lastAutoTable.finalY + 28;
+    });
+  }
+
+  const fname = rbAlcance==='persona'
+    ? `Reporte_${currentScopePeople()[0].nombre.replace(/\s+/g,'_')}_${desde}_a_${hasta}.pdf`
+    : rbAlcance==='sucursal'
+      ? `Reporte_${document.getElementById('rbSucursalSel').value.replace(/\s+/g,'_')}_${desde}_a_${hasta}.pdf`
+      : `Reporte_GPA_Todas_${desde}_a_${hasta}.pdf`;
+
+  doc.save(fname);
+}
+
+/* ---------- Tab: Usuarios ---------- */
+function renderAdminUsuarios(){
+  const sucursales = getSucursales();
+  let html = `
+    <div class="card" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <p style="margin:0;font-size:13px;color:var(--gris-600);max-width:560px;">
+        Catálogo de usuarios del sistema. Solo Supervisores (Jefes/Líderes) y el Administrador tienen acceso de inicio de sesión.
+        El personal operativo no inicia sesión: únicamente es evaluado.
+        Da de alta, edita o da de baja personal cuando haya cambios de plantilla.
+      </p>
+      <button class="pdf-btn" style="background:var(--azul-700);" onclick="openPersonModal()">➕ Agregar persona</button>
+    </div>
+    <div class="filters">
+      <input class="search-input" id="userSearch" placeholder="Buscar por nombre…" oninput="renderUsuariosTable()">
+      <select class="sel-filter" id="userRoleFilter" onchange="renderUsuariosTable()">
+        <option value="">Todos los roles</option>
+        <option value="supervisor">Supervisores</option>
+        <option value="operativo">Personal operativo (sin acceso)</option>
+        <option value="admin">Administrador</option>
+      </select>
+      <select class="sel-filter" id="userSucFilter" onchange="renderUsuariosTable()">
+        <option value="">Todas las sucursales</option>
+        ${sucursales.map(s=>`<option value="${s}">${s}</option>`).join('')}
+      </select>
+      <select class="sel-filter" id="userEstadoFilter" onchange="renderUsuariosTable()">
+        <option value="activos">Solo activos</option>
+        <option value="todos">Activos e inactivos</option>
+        <option value="inactivos">Solo inactivos</option>
+      </select>
+    </div>
+    <div class="table-wrap card" style="padding:0;">
+      <table class="rep-table">
+        <thead><tr><th>Usuario</th><th>Nombre</th><th>Puesto</th><th>Sucursal</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="usuariosTableBody"></tbody>
+      </table>
+    </div>
+  `;
+  document.getElementById('tabUsuarios').innerHTML = html;
+  renderUsuariosTable();
+}
+
+function renderUsuariosTable(){
+  const search = (document.getElementById('userSearch')?.value || '').toLowerCase();
+  const roleFilter = document.getElementById('userRoleFilter')?.value || '';
+  const sucFilter = document.getElementById('userSucFilter')?.value || '';
+  const estadoFilter = document.getElementById('userEstadoFilter')?.value || 'activos';
+
+  const list = PERSONAL
+    .filter(p=> !search || p.nombre.toLowerCase().includes(search))
+    .filter(p=> !roleFilter || p.role===roleFilter)
+    .filter(p=> !sucFilter || p.sucursal===sucFilter)
+    .filter(p=>{
+      const activo = p.activo!==false;
+      if(estadoFilter==='activos') return activo;
+      if(estadoFilter==='inactivos') return !activo;
+      return true;
+    })
+    .sort((a,b)=> (a.activo===false?1:0)-(b.activo===false?1:0) || a.nombre.localeCompare(b.nombre));
+
+  document.getElementById('usuariosTableBody').innerHTML = list.length ? list.map(p=>{
+    const activo = p.activo!==false;
+    const esAdmin = p.role==='admin';
+    return `
+    <tr style="${activo?'':'opacity:.55;'}">
+      <td><code>${p.username}</code></td>
+      <td>${p.nombre}</td>
+      <td>${p.puesto}</td>
+      <td>${p.sucursal}</td>
+      <td>${roleLabel(p.role)}</td>
+      <td>${activo ? '<span class="badge calificado">Activo</span>' : '<span class="badge falta-i">Inactivo</span>'}</td>
+      <td>
+        <div class="btn-row" style="gap:6px;">
+          ${esAdmin ? '<span style="font-size:11.5px;color:var(--gris-400);">—</span>' : `
+            <button class="eval-btn secondary" style="padding:6px 10px;font-size:11.5px;" onclick="openPersonModal(${p.id})">Editar</button>
+            ${activo
+              ? `<button class="eval-btn secondary" style="padding:6px 10px;font-size:11.5px;border-color:var(--amarillo);color:var(--amarillo);" onclick="darDeBajaPersona(${p.id})">Dar de baja</button>`
+              : `<button class="eval-btn secondary" style="padding:6px 10px;font-size:11.5px;border-color:var(--verde);color:var(--verde);" onclick="reactivarPersona(${p.id})">Reactivar</button>`
+            }
+            <button class="eval-btn secondary" style="padding:6px 10px;font-size:11.5px;border-color:var(--rojo);color:var(--rojo);" onclick="eliminarPersonaDefinitivo(${p.id})">Eliminar</button>
+          `}
+        </div>
+      </td>
+    </tr>
+  `;
+  }).join('') : `<tr><td colspan="7" style="text-align:center;color:var(--gris-400);padding:30px;">Sin resultados</td></tr>`;
+}
+
+function roleLabel(role){
+  if(role==='admin') return '<span class="badge calificado">Administrador</span>';
+  if(role==='supervisor') return '<span class="badge falta-j" style="background:var(--azul-100);color:var(--azul-700);">Supervisor</span>';
+  return '<span class="badge pendiente">Operativo</span>';
+}
+
+/* ============================================================
+   ALTA / EDICIÓN / BAJA / ELIMINACIÓN DE PERSONAL
+============================================================ */
+let personModalEditId = null;
+
+function openPersonModal(personId){
+  personModalEditId = personId || null;
+  const editing = !!personId;
+  const person = editing ? PERSONAL.find(p=>p.id===personId) : null;
+  const sucursales = getSucursales();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay open';
+  overlay.id = 'personModalOverlay';
+  overlay.innerHTML = `
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="who"><div class="pname">${editing ? 'Editar persona' : 'Agregar persona'}</div></div>
+        <button class="close-x" onclick="closePersonModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Nombre completo</label>
+          <input type="text" id="pmNombre" value="${person ? person.nombre.replace(/"/g,'&quot;') : ''}" placeholder="Ej. Juan Pérez García">
+        </div>
+        <div class="field">
+          <label>Rol</label>
+          <select id="pmRole" ${editing ? 'disabled' : ''} onchange="updatePuestoOptions()">
+            <option value="operativo" ${person && person.role==='operativo' ? 'selected':''}>Personal operativo (sin acceso al sistema)</option>
+            <option value="supervisor" ${person && person.role==='supervisor' ? 'selected':''}>Supervisor (Jefe/Líder, con acceso al sistema)</option>
+          </select>
+          ${editing ? '<p style="font-size:11.5px;color:var(--gris-400);margin:6px 0 0;">El rol no puede cambiarse una vez creada la persona.</p>' : ''}
+        </div>
+        <div class="field">
+          <label>Puesto</label>
+          <select id="pmPuesto"></select>
+        </div>
+        <div class="field">
+          <label>Sucursal</label>
+          <select id="pmSucursal" onchange="toggleNuevaSucursal()">
+            ${sucursales.map(s=>`<option value="${s}" ${person && person.sucursal===s ? 'selected':''}>${s}</option>`).join('')}
+            <option value="__nueva__">➕ Otra (escribir nueva sucursal)</option>
+          </select>
+        </div>
+        <div class="field" id="pmNuevaSucursalField" style="display:none;">
+          <label>Nombre de la nueva sucursal</label>
+          <input type="text" id="pmNuevaSucursal" placeholder="Ej. Querétaro">
+        </div>
+        ${editing ? `
+          <div class="field">
+            <label>Usuario</label>
+            <input type="text" value="${person.username}" disabled style="background:var(--gris-100);color:var(--gris-400);">
+          </div>
+        ` : `
+          <div class="preview-note">ℹ️ El usuario y la contraseña se generan automáticamente (formato nombre.apellido, contraseña inicial <code>gpa2026</code>) al guardar.</div>
+        `}
+      </div>
+      <div class="modal-foot">
+        <button class="save-btn" onclick="savePersonModal()">${editing ? 'Guardar cambios' : 'Agregar persona'}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  updatePuestoOptions(person ? person.puesto : null);
+}
+
+function updatePuestoOptions(currentPuesto){
+  const role = document.getElementById('pmRole').value;
+  const sel = document.getElementById('pmPuesto');
+  const opciones = role==='supervisor'
+    ? ['Jefe de Almacen','Lider de Almacen']
+    : ['Almacenista','Almacenista Surtido','Chofer Almacenista','Lider de Almacen','Cerrador de Almacen','Tecnico'];
+  sel.innerHTML = opciones.map(o=>`<option value="${o}" ${currentPuesto===o?'selected':''}>${o}</option>`).join('');
+}
+
+function toggleNuevaSucursal(){
+  const sel = document.getElementById('pmSucursal');
+  const field = document.getElementById('pmNuevaSucursalField');
+  field.style.display = sel.value==='__nueva__' ? 'flex' : 'none';
+}
+
+function closePersonModal(){
+  const overlay = document.getElementById('personModalOverlay');
+  if(overlay) overlay.remove();
+  personModalEditId = null;
+}
+
+const SUCURSAL_CODES = {
+  'Guadalajara':'GDL','Monterrey':'MTY','Ciudad de México':'CDMX',
+  'Puerto Vallarta':'PV','Los Cabos':'LC','Cancun':'CUN','CEDIS':'CEDIS'
+};
+
+async function savePersonModal(){
+  const nombre = document.getElementById('pmNombre').value.trim();
+  const role = document.getElementById('pmRole').value;
+  const puesto = document.getElementById('pmPuesto').value;
+  let sucursal = document.getElementById('pmSucursal').value;
+
+  if(sucursal==='__nueva__'){
+    sucursal = document.getElementById('pmNuevaSucursal').value.trim();
+    if(!sucursal){
+      alert('Escribe el nombre de la nueva sucursal.');
+      return;
+    }
+  }
+
+  if(!nombre){
+    alert('El nombre completo es obligatorio.');
+    return;
+  }
+
+  const saveBtn = document.querySelector('#personModalOverlay .save-btn');
+  if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = 'Guardando…'; }
+
+  try{
+    if(personModalEditId){
+      await apiSend('/personal', 'PUT', {id:personModalEditId, nombre, puesto, sucursal});
+    } else {
+      await apiSend('/personal', 'POST', {nombre, puesto, sucursal, role});
+    }
+    await refreshPersonal();
+    closePersonModal();
+    renderUsuariosTable();
+  } catch(err){
+    console.error(err);
+    alert('No se pudo guardar. Verifica tu conexión a internet e intenta de nuevo.');
+    if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = personModalEditId ? 'Guardar cambios' : 'Agregar persona'; }
+  }
+}
+
+async function darDeBajaPersona(personId){
+  const person = PERSONAL.find(p=>p.id===personId);
+  if(!person) return;
+  if(!confirm(`¿Dar de baja a ${person.nombre}?\n\nSu historial de evaluaciones se conserva, pero ya no podrá iniciar sesión (si es supervisor) ni aparecerá en las listas para ser calificado (si es operativo).`)) return;
+  try{
+    await apiSend('/personal', 'PUT', {id:personId, activo:false});
+    await refreshPersonal();
+    renderUsuariosTable();
+  } catch(err){
+    alert('No se pudo dar de baja. Verifica tu conexión e intenta de nuevo.');
+  }
+}
+
+async function reactivarPersona(personId){
+  const person = PERSONAL.find(p=>p.id===personId);
+  if(!person) return;
+  try{
+    await apiSend('/personal', 'PUT', {id:personId, activo:true});
+    await refreshPersonal();
+    renderUsuariosTable();
+  } catch(err){
+    alert('No se pudo reactivar. Verifica tu conexión e intenta de nuevo.');
+  }
+}
+
+async function eliminarPersonaDefinitivo(personId){
+  const person = PERSONAL.find(p=>p.id===personId);
+  if(!person) return;
+  if(!confirm(`¿ELIMINAR DEFINITIVAMENTE a ${person.nombre}?\n\nEsta acción no se puede deshacer y borrará también todo su historial de evaluaciones registradas.`)) return;
+  if(!confirm('Confirma una segunda vez: esta eliminación es permanente. ¿Continuar?')) return;
+
+  try{
+    await fetch(API_BASE + '/personal?id=' + personId, {method:'DELETE'});
+    await Promise.all([refreshPersonal(), refreshEvaluaciones()]);
+    renderUsuariosTable();
+  } catch(err){
+    alert('No se pudo eliminar. Verifica tu conexión e intenta de nuevo.');
+  }
+}
+
+/* ============================================================
+   RENDIMIENTO DE SUPERVISORES
+   Reglas: % de Cumplimiento de Calificaciones visible SOLO en vista
+   general (todas las sucursales) y por sucursal. En el detalle de
+   un supervisor individual NUNCA se muestra ningún %, solo el
+   número de evaluaciones realizadas y el detalle de a quién calificó.
+============================================================ */
+let svPeriodo = 'mes';
+let svSucursalFiltro = '';
+let svSupervisorAbierto = null;
+
+function renderSupervisoresPanel(){
+  const sucursales = getSucursales();
+  const hoy = todayISO();
+  const hoyMes = hoy.slice(0,7);
+
+  document.getElementById('tabSupervisores').innerHTML = `
+    <div class="report-builder">
+      <div class="rb-row">
+        <div class="rb-field" style="flex:0;min-width:auto;">
+          <label>Periodo</label>
+          <div class="period-toggle">
+            <button id="svPtDia" onclick="setSvPeriodo('dia')">Día</button>
+            <button id="svPtSemana" onclick="setSvPeriodo('semana')">Semana</button>
+            <button id="svPtMes" class="active" onclick="setSvPeriodo('mes')">Mes</button>
+            <button id="svPtRango" onclick="setSvPeriodo('rango')">Rango libre</button>
+          </div>
+        </div>
+        <div class="rb-field" id="svFechaFieldDia" style="display:none;">
+          <label>Fecha</label>
+          <input type="date" id="svFechaDia" value="${hoy}" onchange="renderSupervisoresList()">
+        </div>
+        <div class="rb-field" id="svFechaFieldSemana" style="display:none;">
+          <label>Semana que incluye</label>
+          <input type="date" id="svFechaSemana" value="${hoy}" onchange="renderSupervisoresList()">
+        </div>
+        <div class="rb-field" id="svFechaFieldMes">
+          <label>Mes</label>
+          <input type="month" id="svFechaMes" value="${hoyMes}" onchange="renderSupervisoresList()">
+        </div>
+        <div class="rb-field" id="svFechaFieldRango" style="display:none;">
+          <label>Desde</label>
+          <input type="date" id="svDesde" value="${hoy}" onchange="renderSupervisoresList()">
+        </div>
+        <div class="rb-field" id="svFechaFieldRangoHasta" style="display:none;">
+          <label>Hasta</label>
+          <input type="date" id="svHasta" value="${hoy}" onchange="renderSupervisoresList()">
+        </div>
+        <div class="rb-field">
+          <label>Sucursal</label>
+          <select id="svSucursalSel" onchange="renderSupervisoresList()">
+            <option value="">Todas las sucursales</option>
+            ${sucursales.map(s=>`<option value="${s}">${s}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="svSummary"></div>
+    <div id="svList"></div>
+  `;
+  renderSupervisoresList();
+}
+
+function setSvPeriodo(p){
+  svPeriodo = p;
+  ['Dia','Semana','Mes','Rango'].forEach(k=>{
+    document.getElementById('svPt'+k).classList.toggle('active', k.toLowerCase()===p);
+  });
+  document.getElementById('svFechaFieldDia').style.display = p==='dia' ? 'flex':'none';
+  document.getElementById('svFechaFieldSemana').style.display = p==='semana' ? 'flex':'none';
+  document.getElementById('svFechaFieldMes').style.display = p==='mes' ? 'flex':'none';
+  document.getElementById('svFechaFieldRango').style.display = p==='rango' ? 'flex':'none';
+  document.getElementById('svFechaFieldRangoHasta').style.display = p==='rango' ? 'flex':'none';
+  renderSupervisoresList();
+}
+
+function resolveSvDateRange(){
+  const hoy = todayISO();
+  function cortarAHoy(desde, hasta){
+    return { desde, hasta: hasta > hoy ? hoy : hasta };
+  }
+  if(svPeriodo==='dia'){
+    const f = document.getElementById('svFechaDia').value || hoy;
+    return cortarAHoy(f, f);
+  }
+  if(svPeriodo==='semana'){
+    const f = document.getElementById('svFechaSemana').value || hoy;
+    const desde = startOfWeekISO(f);
+    return cortarAHoy(desde, isoAddDays(desde,6));
+  }
+  if(svPeriodo==='mes'){
+    const f = document.getElementById('svFechaMes').value;
+    const base = f ? f+'-01' : hoy;
+    return cortarAHoy(startOfMonthISO(base), endOfMonthISO(base));
+  }
+  const desde = document.getElementById('svDesde').value || hoy;
+  const hasta = document.getElementById('svHasta').value || hoy;
+  return cortarAHoy(desde, hasta);
+}
+
+function renderSupervisoresList(){
+  const {desde, hasta} = resolveSvDateRange();
+  const sucFiltro = document.getElementById('svSucursalSel').value;
+  const supervisores = PERSONAL.filter(p=>p.role==='supervisor')
+    .filter(s=> !sucFiltro || s.sucursal===sucFiltro)
+    .sort((a,b)=>a.sucursal.localeCompare(b.sucursal) || a.nombre.localeCompare(b.nombre));
+
+  // Resumen general / por sucursal: SÍ lleva % de Cumplimiento de Calificaciones
+  const scopePeople = sucFiltro ? getOperativosBySucursal(sucFiltro) : PERSONAL.filter(p=>p.role==='operativo');
+  const calif = computeCalifComplianceForPeople(scopePeople, desde, hasta);
+  const nivelCalif = nivelDe(calif.pct);
+
+  document.getElementById('svSummary').innerHTML = `
+    <div class="summary-row">
+      <div class="stat"><div class="num">${supervisores.length}</div><div class="lbl">Supervisores</div></div>
+      <div class="stat"><div class="num">${calif.registrados}</div><div class="lbl">Evaluaciones registradas</div></div>
+      <div class="stat"><div class="num">${calif.esperados}</div><div class="lbl">Evaluaciones esperadas</div></div>
+      <div class="stat">
+        <div class="num">${calif.pct!==null?calif.pct.toFixed(0)+'%':'—'}</div>
+        <div class="lbl">KPI de Cumplimiento ${sucFiltro?'· '+sucFiltro:'· General'}</div>
+        ${nivelCalif?`<span class="compliance-tag ${nivelCalif.claseTag}" style="margin-top:4px;">${nivelCalif.label}</span>`:''}
+      </div>
+    </div>
+  `;
+
+  const listEl = document.getElementById('svList');
+  if(supervisores.length===0){
+    listEl.innerHTML = `<div class="empty-state"><div class="ic">🧑‍💼</div><p>No hay supervisores que coincidan con el filtro.</p></div>`;
+    return;
+  }
+
+  listEl.innerHTML = supervisores.map(sup=>{
+    const detalle = computeSupervisorActivity(sup.id, desde, hasta);
+    const isOpen = svSupervisorAbierto===sup.id;
+    return `
+      <div class="card" style="cursor:pointer;" onclick="toggleSupervisorDetalle(${sup.id})">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div class="person-info">
+            <div class="avatar">${initials(sup.nombre)}</div>
+            <div class="person-text">
+              <div class="pname">${sup.nombre}</div>
+              <div class="ppuesto">${sup.puesto} · ${sup.sucursal}</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:var(--texto-enfasis);">${detalle.totalEvaluaciones}</div>
+            <div style="font-size:11px;color:var(--gris-600);font-weight:600;">evaluaciones realizadas</div>
+          </div>
+        </div>
+        ${isOpen ? `
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--gris-100);">
+            <p style="margin:0 0 10px;font-size:12px;color:var(--gris-600);font-weight:600;">
+              Detalle de evaluaciones realizadas en el periodo (sin porcentaje individual):
+            </p>
+            <div class="table-wrap">
+              <table class="rep-table">
+                <thead><tr><th>Fecha</th><th>Persona evaluada</th><th>Estado</th></tr></thead>
+                <tbody>
+                  ${detalle.detalle.length ? detalle.detalle.map(d=>`
+                    <tr>
+                      <td>${fmtFechaCorta(d.fecha)}</td>
+                      <td>${d.personaNombre}</td>
+                      <td>${estadoLabel(d.estado)}</td>
+                    </tr>
+                  `).join('') : `<tr><td colspan="3" style="text-align:center;color:var(--gris-400);">Sin evaluaciones registradas en el periodo</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleSupervisorDetalle(supId){
+  svSupervisorAbierto = svSupervisorAbierto===supId ? null : supId;
+  renderSupervisoresList();
+}
+
+/* Actividad de un supervisor individual: SOLO conteo y detalle, nunca % */
+function computeSupervisorActivity(supervisorId, desde, hasta){
+  const evals = getEvaluations();
+  const detalle = Object.values(evals)
+    .filter(e=> e.evaluadoPor===supervisorId && dateInRange(e.fecha, desde, hasta))
+    .map(e=>{
+      const persona = PERSONAL.find(p=>p.id===e.personId);
+      return {
+        fecha: e.fecha,
+        personaNombre: persona ? persona.nombre : '—',
+        estado: e.tipo
+      };
+    })
+    .sort((a,b)=> b.fecha.localeCompare(a.fecha));
+
+  return { totalEvaluaciones: detalle.length, detalle };
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+(async function init(){
+  initTheme();
+  initialDataLoad(); // arranca en paralelo: carga datos y empieza el polling
+  if(await tryRestoreSession()){
+    enterApp();
+  }
+})();
+</script>
+</body>
+</html>
