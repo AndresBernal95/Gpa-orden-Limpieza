@@ -1,0 +1,83 @@
+GPA · Orden, Limpieza y Acomodo
+Actualización del 11 de septiembre de 2026
+==========================================
+
+CONTENIDO DEL ZIP (respeta las carpetas)
+
+  public/index.html        -> va en la carpeta public/ del repositorio
+  api/personal.js          -> va en la carpeta api/
+  api/login.js             -> va en la carpeta api/
+  api/evaluaciones.js      -> va en la carpeta api/
+  lib/db.js                -> va en la carpeta lib/
+
+El logo de GPA ya viene incrustado dentro de index.html, así que NO hay que
+subir ninguna imagen aparte.
+
+
+CÓMO SUBIRLO A GITHUB
+
+Opción A (la más rápida — arrastrando las carpetas):
+  1. Descomprime el ZIP en tu computadora.
+  2. Entra al repositorio en GitHub, a la raíz (donde se ven las carpetas
+     api, lib y public).
+  3. Add file -> Upload files.
+  4. Arrastra las TRES carpetas (public, api, lib) al recuadro. GitHub
+     respeta las rutas y reemplaza los archivos que ya existían.
+  5. Commit changes.
+
+Opción B (tu proceso de siempre, archivo por archivo):
+  Para cada archivo: entra a su carpeta -> clic en el archivo -> lápiz ->
+  tres puntos "..." -> Delete file -> Commit. Luego regresa a la carpeta ->
+  Add file -> Upload files -> sube el archivo nuevo.
+  Ojo: verifica que el nombre no traiga "(1)" o "_2" si Windows lo renombró.
+
+DESPUÉS DE SUBIR
+  Si Vercel no despliega solo: Deployments -> "..." -> Redeploy
+  (SIN Build Cache) -> Promote to Production.
+
+  Las migraciones de la base de datos (columnas archivado y
+  evaluado_por_nombre, y el blindaje de las llaves foráneas) corren solas
+  en la primera petición después del despliegue. No hay que tocar Neon.
+  Vale la pena revisar los logs de esa primera petición en Vercel.
+
+
+QUÉ CAMBIA
+
+1. Baja definitiva. El botón rojo "Eliminar" ya no existe; ahora dice
+   "Baja definitiva". La persona desaparece de toda la app y pierde su
+   acceso, pero NO se borra nada: sus calificaciones y las que capturó
+   siguen en la base de datos y siguen saliendo en la exportación.
+   Se puede revertir con "Restaurar", en el filtro "Baja definitiva
+   (archivados)" del catálogo de Usuarios.
+
+2. Ya no se puede borrar nada. El borrado quedó bloqueado en la API y en
+   las llaves foráneas de la base de datos.
+
+3. Exportar Excel. El botón descarga un .xlsx cuya hoja siempre se llama
+   "Datos". Incluye el histórico completo (también del personal dado de
+   baja y archivado) y una columna nueva, Estatus_persona.
+   Solo en ese archivo, la columna Sucursal escribe "Mexico" en lugar de
+   "Ciudad de México" y "Vallarta" en lugar de "Puerto Vallarta".
+
+4. Logo de GPA en la pantalla de inicio de sesión y en la barra superior.
+
+5. Bugs corregidos:
+   - Los supervisores dados de baja seguían apareciendo en el panel de
+     Supervisores (caso Iván Alejandro Ramírez).
+   - /api/personal devolvía las contraseñas en texto plano a cualquiera
+     que abriera la dirección, sin necesidad de iniciar sesión.
+   - Capturar una fecha de baja a mano dejaba a la persona como activa.
+   - El KPI de Cumplimiento podía pasar de 100%.
+   - El catálogo mostraba "null" en la columna Usuario del personal
+     operativo.
+
+
+DOS PENDIENTES DE SEGURIDAD (fuera de estos archivos)
+
+  · El repositorio de GitHub es PÚBLICO: se puede clonar sin credenciales,
+    y lib/personal-seed.json trae los usuarios y la contraseña gpa2026.
+    Conviene ponerlo en privado (Settings -> General -> Danger Zone ->
+    Change visibility) y cambiar la contraseña estándar.
+  · Los endpoints de la API no piden sesión: quien conozca la dirección
+    podría dar de alta personal o registrar calificaciones. Se resuelve
+    con un token de sesión; queda pendiente para una siguiente versión.
